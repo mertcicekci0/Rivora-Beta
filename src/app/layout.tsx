@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { Providers } from '@/components/Providers'
 import './globals.css'
 
 const inter = Inter({ 
@@ -13,7 +14,11 @@ export const metadata: Metadata = {
   description: 'Step into the future of decentralized finance with Rivora - where security meets innovation.',
   keywords: ['DeFi', 'Decentralized Finance', 'Crypto', 'Blockchain', 'Web3'],
   authors: [{ name: 'Rivora Team' }],
-  viewport: 'width=device-width, initial-scale=1',
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({
@@ -23,7 +28,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   )
 }

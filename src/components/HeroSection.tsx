@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef, useEffect } from 'react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 interface HeroSectionProps {
   scrollY: number;
@@ -109,13 +110,100 @@ const HeroSection: React.FC<HeroSectionProps> = ({ scrollY, mousePosition }) => 
         
         {/* Connect Wallet Button */}
         <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
-          <button className="premium-hero-cta-button group">
-            <span className="button-text">CONNECT WALLET</span>
-            <span className="button-arrow">→</span>
-            <div className="button-glow-effect"></div>
-            <div className="button-ripple"></div>
-            <div className="button-energy-field"></div>
-          </button>
+          <ConnectButton.Custom>
+            {({
+              account,
+              chain,
+              openAccountModal,
+              openChainModal,
+              openConnectModal,
+              mounted,
+            }) => {
+              const ready = mounted;
+              const connected = ready && account && chain;
+
+              return (
+                <div
+                  {...(!ready && {
+                    'aria-hidden': true,
+                    'style': {
+                      opacity: 0,
+                      pointerEvents: 'none',
+                      userSelect: 'none',
+                    },
+                  })}
+                >
+                  {(() => {
+                    if (!connected) {
+                      return (
+                        <button 
+                          className="premium-hero-cta-button group" 
+                          onClick={openConnectModal} 
+                          type="button"
+                        >
+                          <span className="button-text">CONNECT WALLET</span>
+                          <span className="button-arrow">→</span>
+                          <div className="button-glow-effect"></div>
+                          <div className="button-ripple"></div>
+                          <div className="button-energy-field"></div>
+                        </button>
+                      );
+                    }
+
+                    if (chain.unsupported) {
+                      return (
+                        <button 
+                          className="premium-hero-cta-button group" 
+                          onClick={openChainModal} 
+                          type="button"
+                          style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)' }}
+                        >
+                          <span className="button-text">WRONG NETWORK</span>
+                          <span className="button-arrow">⚠</span>
+                          <div className="button-glow-effect"></div>
+                          <div className="button-ripple"></div>
+                          <div className="button-energy-field"></div>
+                        </button>
+                      );
+                    }
+
+                    return (
+                      <div style={{ display: 'flex', gap: 12 }}>
+                        <button
+                          className="premium-hero-cta-button group"
+                          onClick={openChainModal}
+                          style={{ padding: '12px 20px', minWidth: 'auto' }}
+                          type="button"
+                        >
+                          <span className="button-text">{chain.name}</span>
+                          <div className="button-glow-effect"></div>
+                          <div className="button-ripple"></div>
+                          <div className="button-energy-field"></div>
+                        </button>
+
+                        <button
+                          className="premium-hero-cta-button group"
+                          onClick={openAccountModal}
+                          type="button"
+                        >
+                          <span className="button-text">
+                            {account.displayName}
+                            {account.displayBalance
+                              ? ` (${account.displayBalance})`
+                              : ''}
+                          </span>
+                          <span className="button-arrow">👤</span>
+                          <div className="button-glow-effect"></div>
+                          <div className="button-ripple"></div>
+                          <div className="button-energy-field"></div>
+                        </button>
+                      </div>
+                    );
+                  })()}
+                </div>
+              );
+            }}
+          </ConnectButton.Custom>
         </div>
       </div>
           
