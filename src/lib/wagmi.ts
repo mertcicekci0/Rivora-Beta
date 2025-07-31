@@ -8,9 +8,16 @@ import {
   sepolia,
 } from 'wagmi/chains';
 
+const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'fd4c14b5c6a1db8a8f5b7a8e9c3f6b2d';
+
+if (!projectId) {
+  throw new Error('NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID is not defined');
+}
+
 export const config = getDefaultConfig({
   appName: 'Rivora DeFi Platform',
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '2f5a0b4b30a7c5f8e9d1a3c6b7e0f2a9',
+  projectId,
   chains: [mainnet, polygon, optimism, arbitrum, base, sepolia],
   ssr: true,
+  multiInjectedProviderDiscovery: false,
 });

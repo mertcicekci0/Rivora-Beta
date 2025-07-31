@@ -8,7 +8,14 @@ import { RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
 
 import { config } from '@/lib/wagmi';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -22,8 +29,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
             fontStack: 'system',
             overlayBlur: 'small',
           })}
-          showRecentTransactions={true}
+          showRecentTransactions={false}
           modalSize="compact"
+          coolMode
         >
           {children}
         </RainbowKitProvider>
