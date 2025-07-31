@@ -55,7 +55,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ scrollY, mousePosition }) => 
     <section 
       className="relative w-full overflow-hidden"
       style={{ 
-        minHeight: '120vh',
+        minHeight: '90vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'

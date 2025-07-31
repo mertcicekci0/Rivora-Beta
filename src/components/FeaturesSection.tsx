@@ -61,7 +61,7 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ scrollY }) => {
   }, []);
 
   return (
-    <section ref={featuresRef} className="relative py-32 z-10 overflow-hidden w-full" style={{ marginTop: '10vh' }}>
+    <section ref={featuresRef} className="relative py-32 z-10 overflow-hidden w-full" style={{ marginTop: '5vh' }}>
       <div className="w-full max-w-7xl mx-auto px-6">
         {features.map((feature, index) => (
           <div 
