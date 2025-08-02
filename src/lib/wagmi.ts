@@ -1,20 +1,65 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import {
-  mainnet,
-  polygon,
-  optimism,
-  arbitrum,
-  base,
-  sepolia,
-} from 'wagmi/chains';
+import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
+import { cookieStorage, createStorage } from 'wagmi'
+import { mainnet, arbitrum, polygon } from 'wagmi/chains'
+import { createAppKit } from '@reown/appkit/react'
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
-// Use a valid WalletConnect project ID format for development
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '2f5a2b1c8d9e3f4a5b6c7d8e9f0a1b2c';
+// Get projectId from https://cloud.reown.com
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'c4f79cc821944d9680842e34466bfbd'
 
-export const config = getDefaultConfig({
-  appName: 'Rivora DeFi Platform',
-  projectId,
-  chains: [mainnet, polygon, optimism, arbitrum, base, sepolia],
+// Create the chains
+const chains = [mainnet, arbitrum, polygon] as const
+
+// Create a metadata object
+const metadata = {
+  name: 'Rivora DeFi Platform',
+  description: 'Rivora DeFi Platform',
+  url: 'https://rivora.vercel.app', // origin must match your domain & subdomain
+  icons: ['https://avatars.githubusercontent.com/u/37784886']
+}
+
+// Create Wagmi config
+const config = defaultWagmiConfig({
+  chains, // required
+  projectId, // required
+  metadata, // required
   ssr: true,
-  multiInjectedProviderDiscovery: false,
-});
+  storage: createStorage({
+    storage: cookieStorage
+  }),
+  // Disable remote configuration to prevent 403 errors
+  enableAnalytics: false,
+  enableOnramp: false
+})
+
+// Create wagmi adapter
+const wagmiAdapter = new WagmiAdapter({
+  storage: createStorage({
+    storage: cookieStorage
+  }),
+  ssr: true,
+  chains,
+  projectId
+})
+
+export const config = wagmiAdapter.wagmiConfig
+
+// Create modal with local configuration only
+createAppKit({
+  adapters: [wagmiAdapter],
+  projectId,
+  networks: chains,
+  metadata,
+  features: {
+    analytics: false,
+    onramp: false,
+    swaps: false,
+    email: false,
+    socials: []
+  },
+  // Force local configuration only
+  enableWalletConnect: true,
+  enableInjected: true,
+  enableEIP6963: true,
+  enableCoinbase: true
+})
