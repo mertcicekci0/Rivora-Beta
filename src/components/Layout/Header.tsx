@@ -8,6 +8,17 @@ const Header: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
   
+  const getActiveTab = (pathname: string) => {
+    if (pathname === '/dashboard') return '/dashboard';
+    if (pathname.startsWith('/dashboard/portfolio')) return '/dashboard/portfolio';
+    if (pathname.startsWith('/dashboard/swap')) return '/dashboard/swap';
+    if (pathname.startsWith('/dashboard/lending')) return '/dashboard/lending';
+    if (pathname.startsWith('/dashboard/analytics')) return '/dashboard/analytics';
+    return '/dashboard';
+  };
+
+  const activeTab = getActiveTab(pathname);
+
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', path: '/dashboard' },
     { id: 'portfolio', label: 'Portfolio', path: '/dashboard/portfolio' },
