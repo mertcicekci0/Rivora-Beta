@@ -16,7 +16,7 @@ const metadata = {
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
-// Create Wagmi config using createConfig
+// Create Wagmi config using createConfig - no AppKit/Reown components
 export const config = createConfig({
   chains,
   connectors: [
@@ -24,15 +24,14 @@ export const config = createConfig({
     walletConnect({ 
       projectId,
       metadata,
-      showQrModal: true,
-      qrModalOptions: {
-        enableExplorer: false
-      }
+      showQrModal: false, // Disable QR modal to prevent AppKit initialization
     })
   ],
   storage: createStorage({
     storage: cookieStorage
   }),
   ssr: true
-}
-)
+})
+
+// Export chains for use in components
+export { chains }
