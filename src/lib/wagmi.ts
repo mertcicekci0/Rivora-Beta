@@ -34,3 +34,5 @@ export const config = createConfig({
     storage: cookieStorage
   }),
   ssr: true
+}
+)
