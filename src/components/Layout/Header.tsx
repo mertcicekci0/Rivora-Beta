@@ -33,15 +33,15 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0E1014]/90 backdrop-blur-xl border-b border-[#8033ff]/20">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0f1419] border-b border-[#2a2d47]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <div className="flex items-center space-x-2 cursor-pointer" onClick={() => handleNavigation('/')}>
-            <div className="w-8 h-8 bg-gradient-to-r from-[#0075FF] to-[#9D4DFF] rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">R</span>
+            <div className="w-8 h-8 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">1</span>
             </div>
-            <span className="text-white font-bold text-xl">Rivora</span>
+            <span className="text-white font-bold text-xl">StopInch</span>
           </div>
 
           {/* Navigation */}
@@ -50,9 +50,9 @@ const Header: React.FC = () => {
               <button
                 key={item.id}
                 onClick={() => handleNavigation(item.path)}
-                className={`text-sm font-medium transition-all duration-200 hover:text-[#8033ff] ${
+                className={`text-sm font-medium transition-all duration-200 hover:text-[#8b5cf6] ${
                   pathname === item.path
-                    ? 'text-[#8033ff] border-b-2 border-[#8033ff]'
+                    ? 'text-[#8b5cf6]'
                     : 'text-gray-400'
                 }`}
               >
@@ -63,14 +63,14 @@ const Header: React.FC = () => {
 
           {/* Actions */}
           <div className="flex items-center space-x-4">
-            <button className="p-2 text-gray-400 hover:text-[#8033ff] transition-colors">
+            <button className="p-2 text-gray-400 hover:text-[#8b5cf6] transition-colors">
               <Bell className="w-5 h-5" />
             </button>
-            <button className="p-2 text-gray-400 hover:text-[#8033ff] transition-colors">
+            <button className="p-2 text-gray-400 hover:text-[#8b5cf6] transition-colors">
               <Globe className="w-5 h-5" />
             </button>
             <ConnectButton />
-            <button className="md:hidden p-2 text-gray-400 hover:text-[#8033ff] transition-colors">
+            <button className="md:hidden p-2 text-gray-400 hover:text-[#8b5cf6] transition-colors">
               <Menu className="w-5 h-5" />
             </button>
           </div>
