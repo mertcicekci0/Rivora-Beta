@@ -10,7 +10,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Cross-Origin-Opener-Policy',
-            value: 'unsafe-none',
+            value: 'same-origin-allow-popups',
           },
         ],
       },
@@ -20,6 +20,7 @@ const nextConfig = {
     domains: ['images.pexels.com'],
   },
   webpack: (config, { isServer }) => {
+    // Reown/WalletConnect hatalarını önlemek için externals ekle
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
     
     if (!isServer) {

@@ -31,7 +31,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
           })}
           showRecentTransactions={false}
           modalSize="compact"
-          coolMode
         >
           {children}
         </RainbowKitProvider>
