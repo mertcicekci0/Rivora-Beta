@@ -2,6 +2,8 @@
 
 import React, { useRef, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { useRouter } from 'next/navigation';
+import { useAccount } from 'wagmi';
 
 interface HeroSectionProps {
   scrollY: number;
@@ -11,6 +13,17 @@ interface HeroSectionProps {
 const HeroSection: React.FC<HeroSectionProps> = ({ scrollY, mousePosition }) => {
   const orbRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const { isConnected } = useAccount();
+
+  // Wallet bağlandığında dashboard'a yönlendir
+  useEffect(() => {
+    if (isConnected) {
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1000); // 1 saniye bekle (animasyon için)
+    }
+  }, [isConnected, router]);
 
   useEffect(() => {
     if (orbRef.current) {
