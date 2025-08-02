@@ -8,26 +8,31 @@ const SwapInterface: React.FC = () => {
   const [toToken, setToToken] = useState('USDC');
   const [fromAmount, setFromAmount] = useState('1.0');
   const [toAmount, setToAmount] = useState('2,543.21');
+  const [isSwapping, setIsSwapping] = useState(false);
 
   const handleSwapTokens = () => {
-    const tempToken = fromToken;
-    const tempAmount = fromAmount;
-    setFromToken(toToken);
-    setToToken(tempToken);
-    setFromAmount(toAmount);
-    setToAmount(tempAmount);
+    setIsSwapping(true);
+    setTimeout(() => {
+      const tempToken = fromToken;
+      const tempAmount = fromAmount;
+      setFromToken(toToken);
+      setToToken(tempToken);
+      setFromAmount(toAmount);
+      setToAmount(tempAmount);
+      setIsSwapping(false);
+    }, 500);
   };
 
   return (
     <div className="max-w-md mx-auto">
-      <div className="bg-[#0A0E13]/80 backdrop-blur-xl border border-[#8033ff]/30 rounded-2xl p-6 relative overflow-hidden">
+      <div className="bg-[#0A0E13]/80 backdrop-blur-xl border border-[#8033ff]/30 rounded-2xl p-6 relative overflow-hidden hover-scale glow-purple transition-all duration-300">
         {/* Background glow */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#8033ff]/10 to-[#00FFE0]/10 rounded-2xl"></div>
         
         <div className="relative z-10">
           {/* Header */}
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-xl font-bold text-white">Swap</h3>
+            <h3 className="text-xl font-bold text-white gradient-text">Swap Tokens</h3>
             <div className="flex space-x-2">
               <button className="p-2 text-gray-400 hover:text-[#8033ff] transition-colors">
                 <RefreshCw className="w-4 h-4" />
@@ -108,8 +113,26 @@ const SwapInterface: React.FC = () => {
           </div>
 
           {/* Swap Button */}
-          <button className="w-full bg-gradient-to-r from-[#8033ff] to-[#00FFE0] text-white font-bold py-4 rounded-xl hover:shadow-lg hover:shadow-[#8033ff]/25 transition-all duration-200 transform hover:scale-[1.02]">
-            Swap
+          <button 
+            onClick={() => {
+              setIsSwapping(true);
+              setTimeout(() => setIsSwapping(false), 2000);
+            }}
+            disabled={isSwapping}
+            className={`w-full bg-gradient-to-r from-[#8033ff] to-[#00FFE0] text-white font-bold py-4 rounded-xl transition-all duration-200 transform ${
+              isSwapping 
+                ? 'opacity-75 cursor-not-allowed' 
+                : 'hover:shadow-lg hover:shadow-[#8033ff]/25 hover:scale-[1.02]'
+            }`}
+          >
+            {isSwapping ? (
+              <div className="flex items-center justify-center space-x-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <span>Swapping...</span>
+              </div>
+            ) : (
+              'Swap Tokens'
+            )}
           </button>
         </div>
       </div>

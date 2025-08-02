@@ -32,12 +32,12 @@ const AnalyticsChart: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#0A0E13]/80 backdrop-blur-xl border border-[#8033ff]/30 rounded-2xl p-6">
+    <div className="bg-[#0A0E13]/80 backdrop-blur-xl border border-[#8033ff]/30 rounded-2xl p-6 hover-scale glow-pink transition-all duration-300">
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-white mb-2">Portfolio Performance</h3>
+        <h3 className="text-xl font-bold text-white mb-2 gradient-text">Portfolio Performance</h3>
         <div className="flex items-center space-x-4">
           <div className="text-3xl font-bold text-white">$72,450</div>
-          <div className="text-[#32CD32] text-sm font-medium">+18.7%</div>
+          <div className="text-[#32CD32] text-sm font-medium pulse-glow">+18.7%</div>
         </div>
       </div>
 

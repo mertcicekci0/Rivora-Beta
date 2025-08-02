@@ -46,7 +46,7 @@ const LendingProtocols: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-white mb-2">Lending Opportunities</h2>
+        <h2 className="text-2xl font-bold text-white mb-2 gradient-text">Lending Opportunities</h2>
         <p className="text-gray-400">Optimized suggestions based on your DeFi Insight Score</p>
       </div>
 

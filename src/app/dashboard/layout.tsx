@@ -43,7 +43,7 @@ export default function DashboardLayout({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
-              <div className="w-6 h-6 bg-gradient-to-r from-[#8033ff] to-[#00FFE0] rounded-full flex items-center justify-center">
+              <div className="w-6 h-6 bg-gradient-to-r from-[#0075FF] to-[#9D4DFF] rounded-full flex items-center justify-center">
                 <span className="text-white font-bold text-xs">R</span>
               </div>
               <span className="text-white font-bold">Rivora</span>

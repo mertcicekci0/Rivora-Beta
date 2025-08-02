@@ -28,16 +28,16 @@ const Portfolio3D: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#0A0E13]/80 backdrop-blur-xl border border-[#8033ff]/30 rounded-2xl p-6 relative overflow-hidden">
+    <div className="bg-[#0A0E13]/80 backdrop-blur-xl border border-[#8033ff]/30 rounded-2xl p-6 relative overflow-hidden hover-scale glow-cyan transition-all duration-300">
       {/* Background glow */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#8033ff]/5 to-[#00FFE0]/5 rounded-2xl"></div>
       
       <div className="relative z-10">
         <div className="mb-6">
-          <h3 className="text-xl font-bold text-white mb-2">Portfolio Overview</h3>
+          <h3 className="text-xl font-bold text-white mb-2 gradient-text">Portfolio Overview</h3>
           <div className="flex items-center space-x-4">
             <div className="text-3xl font-bold text-white">${totalValue.toLocaleString()}</div>
-            <div className="text-[#32CD32] text-sm font-medium">+12.4%</div>
+            <div className="text-[#32CD32] text-sm font-medium pulse-glow">+12.4%</div>
           </div>
         </div>
 

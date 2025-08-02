@@ -181,35 +181,57 @@ const HeroSection: React.FC<HeroSectionProps> = ({ scrollY, mousePosition }) => 
                     }
 
                     return (
-                      <div style={{ display: 'flex', gap: 12 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
+                        {/* Enter Dashboard Button */}
                         <button
                           className="premium-hero-cta-button group"
-                          onClick={openChainModal}
-                          style={{ padding: '12px 20px', minWidth: 'auto' }}
+                          onClick={() => router.push('/dashboard')}
                           type="button"
+                          style={{ 
+                            background: 'linear-gradient(135deg, #0075FF, #9D4DFF, #FF007A)',
+                            fontSize: '1.2rem',
+                            padding: '1.5rem 4rem'
+                          }}
                         >
-                          <span className="button-text">{chain.name}</span>
+                          <span className="button-text">ENTER DASHBOARD</span>
+                          <span className="button-arrow">🚀</span>
                           <div className="button-glow-effect"></div>
                           <div className="button-ripple"></div>
                           <div className="button-energy-field"></div>
                         </button>
 
-                        <button
-                          className="premium-hero-cta-button group"
-                          onClick={openAccountModal}
-                          type="button"
-                        >
-                          <span className="button-text">
-                            {account.displayName}
-                            {account.displayBalance
-                              ? ` (${account.displayBalance})`
-                              : ''}
-                          </span>
-                          <span className="button-arrow">👤</span>
-                          <div className="button-glow-effect"></div>
-                          <div className="button-ripple"></div>
-                          <div className="button-energy-field"></div>
-                        </button>
+                        {/* Wallet Info Buttons */}
+                        <div style={{ display: 'flex', gap: 12 }}>
+                          <button
+                            className="premium-hero-cta-button group"
+                            onClick={openChainModal}
+                            style={{ padding: '8px 16px', minWidth: 'auto', fontSize: '0.9rem' }}
+                            type="button"
+                          >
+                            <span className="button-text">{chain.name}</span>
+                            <div className="button-glow-effect"></div>
+                            <div className="button-ripple"></div>
+                            <div className="button-energy-field"></div>
+                          </button>
+
+                          <button
+                            className="premium-hero-cta-button group"
+                            onClick={openAccountModal}
+                            style={{ padding: '8px 16px', fontSize: '0.9rem' }}
+                            type="button"
+                          >
+                            <span className="button-text">
+                              {account.displayName}
+                              {account.displayBalance
+                                ? ` (${account.displayBalance})`
+                                : ''}
+                            </span>
+                            <span className="button-arrow">👤</span>
+                            <div className="button-glow-effect"></div>
+                            <div className="button-ripple"></div>
+                            <div className="button-energy-field"></div>
+                          </button>
+                        </div>
                       </div>
                     );
                   })()}

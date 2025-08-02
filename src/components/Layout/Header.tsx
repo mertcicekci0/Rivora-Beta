@@ -36,11 +36,11 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-[#8033ff] to-[#00FFE0] rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">1</span>
+          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => handleNavigation('/')}>
+            <div className="w-8 h-8 bg-gradient-to-r from-[#0075FF] to-[#9D4DFF] rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">R</span>
             </div>
-            <span className="text-white font-bold text-xl">StopInch</span>
+            <span className="text-white font-bold text-xl">Rivora</span>
           </div>
 
           {/* Navigation */}

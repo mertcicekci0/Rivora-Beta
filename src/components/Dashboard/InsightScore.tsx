@@ -10,13 +10,13 @@ const InsightScore: React.FC = () => {
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
   return (
-    <div className="bg-[#0A0E13]/80 backdrop-blur-xl border border-[#8033ff]/30 rounded-2xl p-8 relative overflow-hidden">
+    <div className="bg-[#0A0E13]/80 backdrop-blur-xl border border-[#8033ff]/30 rounded-2xl p-8 relative overflow-hidden hover-scale glow-purple transition-all duration-300">
       {/* Background glow */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#8033ff]/10 to-[#00FFE0]/10 rounded-2xl"></div>
       
       <div className="relative z-10">
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold text-white mb-2">DeFi Insight Score</h2>
+          <h2 className="text-2xl font-bold text-white mb-2 gradient-text">DeFi Insight Score</h2>
           <p className="text-gray-400">Your personalized DeFi performance metric</p>
         </div>
 
