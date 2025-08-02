@@ -5,9 +5,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Custom Styles */
-@import url('../styles/animations.css');
-@import url('../styles/components.css');
+/* Import Custom Styles - Fixed paths for App Router */
+@import './animations.css';
+@import './components.css';
 
 /* Cosmic Dashboard CSS from index.css */
 @keyframes float {

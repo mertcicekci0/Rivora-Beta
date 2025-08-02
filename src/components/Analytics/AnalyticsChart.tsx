@@ -1,9 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 
 const AnalyticsChart: React.FC = () => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const data = [
     { date: '2024-01', value: 45000, volume: 120000 },
     { date: '2024-02', value: 52000, volume: 140000 },
@@ -30,6 +36,23 @@ const AnalyticsChart: React.FC = () => {
     }
     return null;
   };
+
+  if (!isClient) {
+    return (
+      <div className="bg-[#1a1b2e] border border-[#2a2d47] rounded-2xl p-6">
+        <div className="mb-6">
+          <h3 className="text-xl font-semibold text-white mb-2">Portfolio Performance</h3>
+          <div className="flex items-center space-x-4">
+            <div className="text-2xl font-bold text-white">$72,450</div>
+            <div className="text-[#06d6a0] text-sm font-medium">+18.7%</div>
+          </div>
+        </div>
+        <div className="flex items-center justify-center h-48">
+          <div className="text-gray-400">Loading chart...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#1a1b2e] border border-[#2a2d47] rounded-2xl p-6">

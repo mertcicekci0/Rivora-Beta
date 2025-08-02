@@ -1,9 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const Portfolio3D: React.FC = () => {
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const data = [
     { name: 'ETH', value: 45.2, color: '#8b5cf6', amount: '$66,820.267' },
     { name: 'BTC', value: 28.7, color: '#06d6a0', amount: '$42,427.913' },
@@ -26,6 +32,26 @@ const Portfolio3D: React.FC = () => {
     }
     return null;
   };
+
+  if (!isClient) {
+    return (
+      <div className="bg-[#1a1b2e] border border-[#2a2d47] rounded-2xl p-6 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#6366f1]/5 to-[#8b5cf6]/5 rounded-2xl"></div>
+        <div className="relative z-10">
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold text-white mb-2">Portfolio Overview</h3>
+            <div className="flex items-center space-x-4">
+              <div className="text-2xl font-bold text-white">${totalValue.toLocaleString()}</div>
+              <div className="text-[#06d6a0] text-sm font-medium">+12.4%</div>
+            </div>
+          </div>
+          <div className="flex items-center justify-center h-48">
+            <div className="text-gray-400">Loading chart...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#1a1b2e] border border-[#2a2d47] rounded-2xl p-6 relative overflow-hidden">
