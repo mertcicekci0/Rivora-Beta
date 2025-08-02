@@ -69,7 +69,7 @@ const Portfolio3D: React.FC = () => {
 
         <div className="flex items-center gap-6">
           <div className="relative flex-shrink-0">
-            <ResponsiveContainer width={200} height={200}>
+            <div style={{ width: 200, height: 200 }}>
               <PieChart>
                 <Pie
                   data={data}
@@ -90,7 +90,7 @@ const Portfolio3D: React.FC = () => {
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
               </PieChart>
-            </ResponsiveContainer>
+            </div>
           </div>
 
           <div className="flex-1 space-y-3">

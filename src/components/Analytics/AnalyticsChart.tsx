@@ -64,7 +64,7 @@ const AnalyticsChart: React.FC = () => {
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={200}>
+      <div style={{ width: '100%', height: 200 }}>
         <AreaChart data={data}>
           <defs>
             <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
@@ -92,7 +92,7 @@ const AnalyticsChart: React.FC = () => {
             strokeWidth={2}
           />
         </AreaChart>
-      </ResponsiveContainer>
+      </div>
     </div>
   );
 };

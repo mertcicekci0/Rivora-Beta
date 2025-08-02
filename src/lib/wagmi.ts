@@ -12,7 +12,7 @@ const chains = [mainnet, arbitrum, polygon] as const
 const metadata = {
   name: 'Rivora DeFi Platform',
   description: 'Rivora DeFi Platform',
-  url: 'https://rivora.vercel.app',
+  url: typeof window !== 'undefined' ? window.location.origin : 'https://rivora.vercel.app',
   icons: ['https://avatars.githubusercontent.com/u/37784886']
 }
 
