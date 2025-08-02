@@ -28,7 +28,15 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-[#0E1014] relative">
-      <CosmicBackground />
+      <div className="fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0E1014] via-[#0A0E13] to-[#0E1014]"></div>
+        {/* Subtle cosmic elements for dashboard */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-10 right-10 w-32 h-32 bg-gradient-to-r from-[#8033ff]/10 to-[#00FFE0]/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 left-20 w-24 h-24 bg-gradient-to-r from-[#FF00A8]/10 to-[#8033ff]/10 rounded-full blur-2xl"></div>
+          <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-gradient-to-r from-[#00FFE0]/10 to-[#FF00A8]/10 rounded-full blur-xl"></div>
+        </div>
+      </div>
       
       <Header />
       

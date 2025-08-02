@@ -529,11 +529,11 @@ const CosmicBackground: React.FC = () => {
       {/* Static background elements with parallax */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         {/* Base deep space gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a1a] via-[#1a1a2e] via-[#16213e] to-[#0f0f23]"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0E1014] via-[#0A0E13] to-[#0E1014]"></div>
         
         {/* Distant planet - large, blurred with parallax */}
         <div 
-          className="absolute w-96 h-96 rounded-full opacity-20 blur-3xl transition-transform duration-1000 ease-out"
+          className="absolute w-96 h-96 rounded-full opacity-5 blur-3xl transition-transform duration-1000 ease-out"
           style={{
             background: 'radial-gradient(circle at 30% 30%, #4a5568, #2d3748, #1a202c)',
             top: '10%',
@@ -545,7 +545,7 @@ const CosmicBackground: React.FC = () => {
 
         {/* Smaller moon with parallax */}
         <div 
-          className="absolute w-32 h-32 rounded-full opacity-15 blur-xl transition-transform duration-1000 ease-out"
+          className="absolute w-32 h-32 rounded-full opacity-3 blur-xl transition-transform duration-1000 ease-out"
           style={{
             background: 'radial-gradient(circle at 40% 20%, #718096, #4a5568, #2d3748)',
             bottom: '20%',
@@ -557,7 +557,7 @@ const CosmicBackground: React.FC = () => {
 
         {/* Distant galaxy spiral */}
         <div 
-          className="absolute w-64 h-64 rounded-full opacity-10 blur-2xl"
+          className="absolute w-64 h-64 rounded-full opacity-2 blur-2xl"
           style={{
             background: 'conic-gradient(from 0deg, transparent, rgba(128, 51, 255, 0.3), transparent, rgba(0, 255, 224, 0.2), transparent)',
             top: '60%',
@@ -570,7 +570,7 @@ const CosmicBackground: React.FC = () => {
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-white rounded-full opacity-30"
+            className="absolute w-1 h-1 bg-white rounded-full opacity-10"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -583,7 +583,7 @@ const CosmicBackground: React.FC = () => {
 
         {/* Enhanced aurora-like effects */}
         <div 
-          className="absolute inset-0 opacity-8 transition-opacity duration-2000"
+          className="absolute inset-0 opacity-2 transition-opacity duration-2000"
           style={{
             background: `
               radial-gradient(ellipse at 20% 80%, rgba(128, 51, 255, 0.4) 0%, transparent 50%),

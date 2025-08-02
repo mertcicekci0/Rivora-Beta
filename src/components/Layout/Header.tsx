@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, Wallet, Globe, Bell } from 'lucide-react';
+import { Menu, Globe, Bell } from 'lucide-react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -68,10 +69,7 @@ const Header: React.FC = () => {
             <button className="p-2 text-gray-400 hover:text-[#8033ff] transition-colors">
               <Globe className="w-5 h-5" />
             </button>
-            <button className="bg-gradient-to-r from-[#8033ff] to-[#00FFE0] text-white px-4 py-2 rounded-lg font-medium hover:shadow-lg hover:shadow-[#8033ff]/25 transition-all duration-200">
-              <Wallet className="w-4 h-4 inline mr-2" />
-              Connect Wallet
-            </button>
+            <ConnectButton />
             <button className="md:hidden p-2 text-gray-400 hover:text-[#8033ff] transition-colors">
               <Menu className="w-5 h-5" />
             </button>
