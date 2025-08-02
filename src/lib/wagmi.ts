@@ -24,11 +24,13 @@ export const config = createConfig({
     walletConnect({ 
       projectId,
       metadata,
-      showQrModal: true
+      showQrModal: true,
+      qrModalOptions: {
+        enableExplorer: false
+      }
     })
   ],
   storage: createStorage({
     storage: cookieStorage
   }),
   ssr: true
-})
