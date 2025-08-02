@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
 const AnalyticsChart: React.FC = () => {
   const [isClient, setIsClient] = useState(false);
@@ -28,9 +28,11 @@ const AnalyticsChart: React.FC = () => {
           <p className="text-[#8033ff]">
             Portfolio: ${payload[0].value.toLocaleString()}
           </p>
-          <p className="text-[#06d6a0]">
-            Volume: ${payload[1]?.value.toLocaleString()}
-          </p>
+          {payload[1] && (
+            <p className="text-[#06d6a0]">
+              Volume: ${payload[1].value.toLocaleString()}
+            </p>
+          )}
         </div>
       );
     }
@@ -65,7 +67,7 @@ const AnalyticsChart: React.FC = () => {
       </div>
 
       <div style={{ width: '100%', height: 200 }}>
-        <AreaChart data={data}>
+        <AreaChart width={800} height={200} data={data}>
           <defs>
             <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
