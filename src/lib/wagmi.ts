@@ -19,7 +19,7 @@ const metadata = {
 }
 
 // Create Wagmi config
-const config = defaultWagmiConfig({
+const wagmiConfigBase = defaultWagmiConfig({
   chains, // required
   projectId, // required
   metadata, // required
@@ -43,23 +43,3 @@ const wagmiAdapter = new WagmiAdapter({
 })
 
 export const config = wagmiAdapter.wagmiConfig
-
-// Create modal with local configuration only
-createAppKit({
-  adapters: [wagmiAdapter],
-  projectId,
-  networks: chains,
-  metadata,
-  features: {
-    analytics: false,
-    onramp: false,
-    swaps: false,
-    email: false,
-    socials: []
-  },
-  // Force local configuration only
-  enableWalletConnect: true,
-  enableInjected: true,
-  enableEIP6963: true,
-  enableCoinbase: true
-})
