@@ -4,10 +4,7 @@
   width: 300px;
   height: 300px;
   margin: 0 auto;
-  display: block;
   transform-style: preserve-3d;
-  transition: transform 0.1s ease-out;
-  transform: rotateX(var(--rotate-x, 0deg)) rotateY(var(--rotate-y, 0deg)) scale(var(--scale, 1));
 }
 
 .orb-core {
@@ -134,11 +131,6 @@
   letter-spacing: -0.02em;
   margin-bottom: 2rem;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  text-align: center;
 }
 
 .rivora-title {
@@ -172,13 +164,10 @@
 /* Premium Hero CTA Button */
 .premium-hero-cta-button {
   position: relative;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 1rem;
   padding: 1.5rem 4rem;
-  margin: 0 auto;
-  width: fit-content;
   background: linear-gradient(135deg, 
     rgba(0,117,255,0.2), 
     rgba(157,77,255,0.15), 
@@ -361,9 +350,8 @@
 /* Feature Cards */
 .feature-card {
   position: relative;
-  margin: 6rem auto;
+  margin: 8rem auto;
   max-width: 900px;
-  width: 100%;
   border-radius: 24px;
   overflow: hidden;
   backdrop-filter: blur(10px);
@@ -371,21 +359,17 @@
 
 .feature-content {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 3rem;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 4rem;
   padding: 4rem;
   z-index: 2;
-  text-align: center;
 }
 
 .feature-visual {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
 }
 
 .icon-container {
@@ -430,10 +414,7 @@
 .feature-text {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  text-align: center;
-  width: 100%;
 }
 
 .feature-subtitle {
@@ -443,7 +424,6 @@
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-bottom: 1rem;
-  text-align: center;
   opacity: 0;
   transform: translateX(-30px);
   animation: slideIn 0.8s cubic-bezier(0.23, 1, 0.320, 1) forwards;
@@ -456,17 +436,12 @@
   line-height: 1.2;
   margin-bottom: 1.5rem;
   color: white;
-  text-align: center;
-  width: 100%;
 }
 
 .feature-description {
   font-size: 1.125rem;
   line-height: 1.7;
   color: rgba(255,255,255,0.8);
-  text-align: center;
-  max-width: 600px;
-  margin: 0 auto;
   opacity: 0;
   transform: translateY(20px);
   animation: fadeInUp 0.8s cubic-bezier(0.23, 1, 0.320, 1) forwards;
@@ -525,12 +500,6 @@
 .final-cta-content {
   position: relative;
   z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  text-align: center;
 }
 
 .final-title {
@@ -538,23 +507,11 @@
   font-weight: 100;
   line-height: 1;
   margin-bottom: 2rem;
-  text-align: center;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
 }
 
 .final-subtitle {
   font-size: 1.25rem;
   color: rgba(255,255,255,0.7);
-  margin-bottom: 3rem;
-  text-align: center;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
   margin-bottom: 3rem;
   opacity: 0;
   animation: fadeIn 1s ease forwards;
@@ -670,31 +627,24 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .mouse-transform-layer,
   .liquid-orb {
     width: 200px;
     height: 200px;
-    margin: 0 auto;
   }
   
   .feature-content {
-    flex-direction: column;
-    gap: 3rem;
+    grid-template-columns: 1fr;
+    gap: 2rem;
     padding: 2rem;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
   }
   
   .hero-title {
     font-size: clamp(2.5rem, 10vw, 4rem);
-    text-align: center;
-    justify-content: center;
   }
   
   .final-title {
     font-size: clamp(2rem, 8vw, 3.5rem);
-    text-align: center;
-    justify-content: center;
   }
   
   .premium-cta-button,
@@ -706,28 +656,5 @@
   .premium-hero-cta-button {
     padding: 1.25rem 2.5rem;
     font-size: 1.1rem;
-  }
-  
-  .feature-visual {
-    justify-content: center;
-    width: 100%;
-  }
-  
-  .icon-container {
-    margin: 0 auto;
-  }
-  
-  .feature-text {
-    text-align: center;
-    align-items: center;
-    width: 100%;
-  }
-  
-  .feature-title {
-    text-align: center;
-  }
-  
-  .feature-description {
-    text-align: center;
   }
 }

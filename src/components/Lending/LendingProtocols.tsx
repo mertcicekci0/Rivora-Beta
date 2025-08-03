@@ -1,124 +1,169 @@
-'use client';
+'use client'
 
-import React from 'react';
-import { Shield, TrendingUp, Clock, Star } from 'lucide-react';
+import React, { useState } from 'react';
+import { Coins, TrendingUp, Shield, Zap, ExternalLink } from 'lucide-react';
 
 const LendingProtocols: React.FC = () => {
+  const [selectedProtocol, setSelectedProtocol] = useState<string | null>(null);
+
   const protocols = [
     {
+      id: 'aave',
       name: 'Aave',
-      apy: '8.45%',
+      logo: '🏦',
+      apy: '4.25%',
+      tvl: '$12.4B',
       risk: 'Low',
-      tvl: '$12.3B',
-      recommended: true,
-      logo: '🅰️',
-      color: 'from-[#8033ff] to-[#00FFE0]',
+      riskColor: 'text-green-400',
+      description: 'Leading decentralized lending protocol with proven security',
+      tokens: ['USDC', 'ETH', 'WBTC', 'DAI'],
+      features: ['Flash Loans', 'Collateral Swapping', 'Rate Switching'],
     },
     {
+      id: 'compound',
       name: 'Compound',
-      apy: '7.89%',
+      logo: '🏛️',
+      apy: '3.85%',
+      tvl: '$8.2B',
       risk: 'Low',
-      tvl: '$8.7B',
-      recommended: false,
-      logo: '🔴',
-      color: 'from-[#00FFE0] to-[#FF00A8]',
+      riskColor: 'text-green-400',
+      description: 'Algorithmic money market protocol with autonomous interest rates',
+      tokens: ['USDC', 'ETH', 'WBTC', 'UNI'],
+      features: ['Governance Token', 'Autonomous Rates', 'Liquidation Protection'],
     },
     {
-      name: 'Maker',
-      apy: '6.23%',
-      risk: 'Very Low',
-      tvl: '$15.2B',
-      recommended: false,
-      logo: '🟢',
-      color: 'from-[#FF00A8] to-[#8033ff]',
-    },
-    {
-      name: 'Yearn',
-      apy: '12.67%',
+      id: 'maker',
+      name: 'MakerDAO',
+      logo: '🎯',
+      apy: '5.12%',
+      tvl: '$6.8B',
       risk: 'Medium',
-      tvl: '$2.8B',
-      recommended: false,
-      logo: '💙',
-      color: 'from-[#8033ff] to-[#FF00A8]',
+      riskColor: 'text-yellow-400',
+      description: 'Decentralized credit platform enabling DAI generation',
+      tokens: ['ETH', 'WBTC', 'LINK', 'YFI'],
+      features: ['DAI Minting', 'Stability Fee', 'Liquidation Auctions'],
+    },
+    {
+      id: 'yearn',
+      name: 'Yearn Finance',
+      logo: '🌾',
+      apy: '6.78%',
+      tvl: '$4.1B',
+      risk: 'High',
+      riskColor: 'text-red-400',
+      description: 'Yield optimization protocol with automated strategies',
+      tokens: ['USDC', 'DAI', 'USDT', 'WETH'],
+      features: ['Auto-Compounding', 'Strategy Optimization', 'Vault System'],
     },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-white mb-2 gradient-text">Lending Opportunities</h2>
-        <p className="text-gray-400">Optimized suggestions based on your DeFi Insight Score</p>
+      <div className="dashboard-card glow-cyan">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            <div className="p-2 bg-cyan-500/20 rounded-lg">
+              <Coins className="w-6 h-6 text-cyan-400" />
+            </div>
+            <h2 className="text-xl font-semibold text-white">Lending Protocols</h2>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {protocols.map((protocol) => (
+            <div
+              key={protocol.id}
+              className={`p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+                selectedProtocol === protocol.id
+                  ? 'bg-white/10 border-cyan-500/50'
+                  : 'bg-white/5 border-white/10 hover:bg-white/8 hover:border-white/20'
+              }`}
+              onClick={() => setSelectedProtocol(selectedProtocol === protocol.id ? null : protocol.id)}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-3">
+                  <span className="text-2xl">{protocol.logo}</span>
+                  <div>
+                    <h3 className="font-semibold text-white">{protocol.name}</h3>
+                    <p className="text-sm text-gray-400">TVL: {protocol.tvl}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-bold text-cyan-400">{protocol.apy}</p>
+                  <p className="text-sm text-gray-400">APY</p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2">
+                  <Shield className="w-4 h-4 text-gray-400" />
+                  <span className="text-sm text-gray-400">Risk:</span>
+                  <span className={`text-sm font-medium ${protocol.riskColor}`}>
+                    {protocol.risk}
+                  </span>
+                </div>
+                <ExternalLink className="w-4 h-4 text-gray-400" />
+              </div>
+
+              <p className="text-sm text-gray-300 mb-3">{protocol.description}</p>
+
+              <div className="flex flex-wrap gap-2 mb-3">
+                {protocol.tokens.map((token) => (
+                  <span
+                    key={token}
+                    className="px-2 py-1 bg-cyan-500/20 text-cyan-400 text-xs rounded-full"
+                  >
+                    {token}
+                  </span>
+                ))}
+              </div>
+
+              {selectedProtocol === protocol.id && (
+                <div className="mt-4 pt-4 border-t border-white/10">
+                  <h4 className="text-sm font-semibold text-white mb-2">Features:</h4>
+                  <div className="space-y-1">
+                    {protocol.features.map((feature, index) => (
+                      <div key={index} className="flex items-center space-x-2">
+                        <Zap className="w-3 h-3 text-cyan-400" />
+                        <span className="text-sm text-gray-300">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <button className="px-3 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 text-sm rounded-lg transition-colors duration-200">
+                      Supply
+                    </button>
+                    <button className="px-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 text-sm rounded-lg transition-colors duration-200">
+                      Borrow
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {protocols.map((protocol, index) => (
-          <div
-            key={index}
-            className={`bg-[#0A0E13]/80 backdrop-blur-xl border ${
-              protocol.recommended ? 'border-[#8033ff] shadow-lg shadow-[#8033ff]/25' : 'border-[#8033ff]/30'
-            } rounded-2xl p-6 relative overflow-hidden transition-all duration-300 hover:scale-[1.02]`}
-          >
-            {/* Background glow */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${protocol.color} opacity-5 rounded-2xl`}></div>
-            
-            {/* Recommended badge */}
-            {protocol.recommended && (
-              <div className="absolute top-4 right-4 bg-gradient-to-r from-[#8033ff] to-[#00FFE0] text-white text-xs font-bold px-3 py-1 rounded-full flex items-center space-x-1">
-                <Star className="w-3 h-3" />
-                <span>Recommended</span>
-              </div>
-            )}
-            
-            <div className="relative z-10">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="text-2xl">{protocol.logo}</div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">{protocol.name}</h3>
-                  <div className="flex items-center space-x-2 text-sm text-gray-400">
-                    <Shield className="w-3 h-3" />
-                    <span>{protocol.risk} Risk</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-[#32CD32] mb-1">{protocol.apy}</div>
-                  <div className="text-sm text-gray-400 flex items-center justify-center space-x-1">
-                    <TrendingUp className="w-3 h-3" />
-                    <span>APY</span>
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-white mb-1">{protocol.tvl}</div>
-                  <div className="text-sm text-gray-400 flex items-center justify-center space-x-1">
-                    <Clock className="w-3 h-3" />
-                    <span>TVL</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Collateral Ratio</span>
-                  <span className="text-white">75%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Liquidation Fee</span>
-                  <span className="text-white">12.5%</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Minimum Deposit</span>
-                  <span className="text-white">0.1 ETH</span>
-                </div>
-              </div>
-
-              <button className={`w-full mt-6 bg-gradient-to-r ${protocol.color} text-white font-bold py-3 rounded-xl hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02]`}>
-                Lend Now
-              </button>
-            </div>
+      {/* Lending Summary */}
+      <div className="dashboard-card">
+        <h3 className="text-lg font-semibold text-white mb-4">Your Lending Position</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="text-center p-4 bg-green-500/10 rounded-lg border border-green-500/20">
+            <TrendingUp className="w-8 h-8 text-green-400 mx-auto mb-2" />
+            <p className="text-2xl font-bold text-white">$8,450</p>
+            <p className="text-sm text-gray-400">Total Supplied</p>
           </div>
-        ))}
+          <div className="text-center p-4 bg-blue-500/10 rounded-lg border border-blue-500/20">
+            <Coins className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+            <p className="text-2xl font-bold text-white">$2,100</p>
+            <p className="text-sm text-gray-400">Total Borrowed</p>
+          </div>
+          <div className="text-center p-4 bg-purple-500/10 rounded-lg border border-purple-500/20">
+            <Shield className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+            <p className="text-2xl font-bold text-white">75%</p>
+            <p className="text-sm text-gray-400">Health Factor</p>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -4,10 +4,10 @@ import React, { useEffect, useRef } from 'react';
 import { Shield, TrendingUp, User } from 'lucide-react';
 
 interface FeaturesSectionProps {
-  scrollY: number;
+  // scrollY prop removed - no longer needed
 }
 
-const FeaturesSection: React.FC<FeaturesSectionProps> = ({ scrollY }) => {
+const FeaturesSection: React.FC<FeaturesSectionProps> = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
 
   const features = [
@@ -61,8 +61,8 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ scrollY }) => {
   }, []);
 
   return (
-    <section ref={featuresRef} className="relative py-32 z-10 overflow-hidden w-full" style={{ marginTop: '5vh' }}>
-      <div className="w-full max-w-7xl mx-auto px-6">
+    <section ref={featuresRef} className="relative py-32 z-10">
+      <div className="container mx-auto px-6">
         {features.map((feature, index) => (
           <div 
             key={index}
@@ -72,18 +72,18 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ scrollY }) => {
               '--animation-delay': `${feature.delay}s`
             } as React.CSSProperties}
           >
-            <div className="feature-content items-center justify-center">
-              <div className="feature-visual flex items-center justify-center w-full">
-                <div className="icon-container mx-auto flex items-center justify-center">
+            <div className="feature-content">
+              <div className="feature-visual">
+                <div className="icon-container">
                   <feature.icon size={48} className="feature-icon" />
                   <div className="icon-glow"></div>
                   <div className="icon-particles"></div>
                 </div>
               </div>
               
-              <div className="feature-text text-center w-full flex flex-col items-center justify-center">
+              <div className="feature-text">
                 <div className="feature-subtitle">{feature.subtitle}</div>
-                <h2 className="feature-title text-center w-full">
+                <h2 className="feature-title">
                   {feature.title.split(' ').map((word, wordIndex) => (
                     <span 
                       key={wordIndex}
@@ -94,7 +94,7 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ scrollY }) => {
                     </span>
                   ))}
                 </h2>
-                <p className="feature-description text-center max-w-2xl mx-auto">
+                <p className="feature-description">
                   {feature.description}
                 </p>
               </div>

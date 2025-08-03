@@ -1,32 +1,34 @@
 'use client'
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense, useRef } from 'react';
 import HeroSection from '@/components/HeroSection';
 import FeaturesSection from '@/components/FeaturesSection';
+import FinalCTA from '@/components/FinalCTA';
+import CosmicBackground from '@/components/Background/CosmicBackground';
+import Header from '@/components/Layout/Header';
+import InsightScore from '@/components/Dashboard/InsightScore';
+import Portfolio3D from '@/components/Dashboard/Portfolio3D';
+import AnalyticsChart from '@/components/Analytics/AnalyticsChart';
+import SwapInterface from '@/components/Swap/SwapInterface';
+import LendingProtocols from '@/components/Lending/LendingProtocols';
+import ScoresOverview from '@/components/Scores/ScoresOverview';
+import LimitOrderInterface from '@/components/LimitOrder/LimitOrderInterface';
 
 export default function Home() {
-  const [scrollY, setScrollY] = useState(0);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard');
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
+  const handleConnectWallet = () => {
+    setIsWalletConnected(true);
+  };
 
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
+  const handleDisconnectWallet = () => {
+    setIsWalletConnected(false);
+    setActiveTab('dashboard');
+  };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, []);
-
-  return (
+  // Landing Page Component
+  const LandingPage = () => (
     <div className="min-h-screen bg-[#0B0A0F] text-white overflow-x-hidden relative">
       {/* Animated Starfield Background */}
       <div className="fixed inset-0 z-0">
@@ -37,9 +39,74 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="relative z-10">
-        <HeroSection scrollY={scrollY} mousePosition={mousePosition} />
-        <FeaturesSection scrollY={scrollY} />
+        <HeroSection onConnectWallet={handleConnectWallet} />
+        <FeaturesSection />
+        <FinalCTA onConnectWallet={handleConnectWallet} />
       </div>
     </div>
   );
+
+  // Dashboard Content Component
+  const DashboardContent = () => {
+    switch (activeTab) {
+      case 'dashboard':
+        return (
+          <div className="space-y-6">
+            <InsightScore />
+            <Portfolio3D />
+          </div>
+        );
+      case 'scores':
+        return (
+          <div className="space-y-6">
+            <ScoresOverview />
+          </div>
+        );
+      case 'swap':
+        return (
+          <div className="max-w-2xl mx-auto">
+            <SwapInterface />
+          </div>
+        );
+      case 'lending':
+        return <LendingProtocols />;
+      case 'limit-order':
+        return <LimitOrderInterface />;
+      default:
+        return (
+          <div className="space-y-6">
+            <InsightScore />
+            <Portfolio3D />
+          </div>
+        );
+    }
+  };
+
+  // Dashboard App Component
+  const DashboardApp = () => (
+    <div className="min-h-screen bg-[#0E1014] text-white">
+      <CosmicBackground />
+      <Header 
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onDisconnect={handleDisconnectWallet}
+      />
+      <main className="container mx-auto px-6 py-8">
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+          </div>
+        }>
+          <DashboardContent />
+        </Suspense>
+      </main>
+    </div>
+  );
+
+  // Conditional Rendering: Landing Page vs Dashboard
+  if (!isWalletConnected) {
+    return <LandingPage />;
+  }
+
+  return <DashboardApp />;
 }

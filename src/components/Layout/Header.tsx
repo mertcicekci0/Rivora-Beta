@@ -1,80 +1,86 @@
-'use client';
+'use client'
 
 import React from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { Menu, Globe, Bell } from 'lucide-react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { Home, PieChart, ArrowLeftRight, Coins, TrendingUp, LogOut, Target, BarChart3 } from 'lucide-react';
 
-const Header: React.FC = () => {
-  const router = useRouter();
-  const pathname = usePathname();
-  
-  const getActiveTab = (pathname: string) => {
-    if (pathname === '/dashboard') return '/dashboard';
-    if (pathname.startsWith('/dashboard/portfolio')) return '/dashboard/portfolio';
-    if (pathname.startsWith('/dashboard/swap')) return '/dashboard/swap';
-    if (pathname.startsWith('/dashboard/lending')) return '/dashboard/lending';
-    if (pathname.startsWith('/dashboard/analytics')) return '/dashboard/analytics';
-    return '/dashboard';
-  };
+interface HeaderProps {
+  activeTab: string;
+  onTabChange: (tab: string) => void;
+  onDisconnect: () => void;
+}
 
-  const activeTab = getActiveTab(pathname);
-
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', path: '/dashboard' },
-    { id: 'portfolio', label: 'Portfolio', path: '/dashboard/portfolio' },
-    { id: 'swap', label: 'Swap', path: '/dashboard/swap' },
-    { id: 'lending', label: 'Lending', path: '/dashboard/lending' },
-    { id: 'analytics', label: 'Analytics', path: '/dashboard/analytics' },
+const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, onDisconnect }) => {
+  const tabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: Home },
+    { id: 'scores', label: 'Scores', icon: PieChart },
+    { id: 'swap', label: 'Swap', icon: ArrowLeftRight },
+    { id: 'lending', label: 'Lending', icon: Coins },
+    { id: 'limit-order', label: 'Limit Order', icon: Target },
   ];
 
-  const handleNavigation = (path: string) => {
-    router.push(path);
-  };
-
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[#0f1419] border-b border-[#2a2d47]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <header className="glassmorphism border-b border-white/10 sticky top-0 z-50">
+      <div className="container mx-auto px-6 py-4">
+        <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center space-x-2 cursor-pointer" onClick={() => handleNavigation('/')}>
-            <div className="w-8 h-8 bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">1</span>
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 rounded-full cosmic-gradient flex items-center justify-center">
+              <span className="text-white font-bold text-lg">R</span>
             </div>
-            <span className="text-white font-bold text-xl">StopInch</span>
+            <h1 className="text-2xl font-bold cosmic-text-gradient">Rivora</h1>
           </div>
 
-          {/* Navigation */}
-          <nav className="hidden md:flex space-x-8">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => handleNavigation(item.path)}
-                className={`text-sm font-medium transition-all duration-200 hover:text-[#8b5cf6] ${
-                  pathname === item.path
-                    ? 'text-[#8b5cf6]'
-                    : 'text-gray-400'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+          {/* Navigation Tabs */}
+          <nav className="hidden md:flex items-center space-x-8">
+            {tabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange(tab.id)}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200 ${
+                    activeTab === tab.id
+                      ? 'tab-active bg-purple-500/20'
+                      : 'tab-inactive hover:bg-white/5'
+                  }`}
+                >
+                  <Icon size={18} />
+                  <span className="font-medium">{tab.label}</span>
+                </button>
+              );
+            })}
           </nav>
 
-          {/* Actions */}
-          <div className="flex items-center space-x-4">
-            <button className="p-2 text-gray-400 hover:text-[#8b5cf6] transition-colors">
-              <Bell className="w-5 h-5" />
-            </button>
-            <button className="p-2 text-gray-400 hover:text-[#8b5cf6] transition-colors">
-              <Globe className="w-5 h-5" />
-            </button>
-            <ConnectButton />
-            <button className="md:hidden p-2 text-gray-400 hover:text-[#8b5cf6] transition-colors">
-              <Menu className="w-5 h-5" />
-            </button>
-          </div>
+          {/* Disconnect Button */}
+          <button
+            onClick={onDisconnect}
+            className="flex items-center space-x-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 hover:text-red-300 rounded-lg transition-all duration-200"
+          >
+            <LogOut size={18} />
+            <span className="hidden sm:inline">Disconnect</span>
+          </button>
         </div>
+
+        {/* Mobile Navigation */}
+        <nav className="md:hidden mt-4 flex overflow-x-auto space-x-4 pb-2">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-lg whitespace-nowrap transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? 'tab-active bg-purple-500/20'
+                    : 'tab-inactive hover:bg-white/5'
+                }`}
+              >
+                <Icon size={16} />
+                <span className="text-xs font-medium">{tab.label}</span>
+              </button>
+            );
+          })}
+        </nav>
       </div>
     </header>
   );
