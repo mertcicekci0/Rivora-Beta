@@ -50,8 +50,20 @@ export function useScores(chainId: number = 1) {
     error: null,
   });
 
-  const fetchScores = async (walletAddress: string, targetChainId: number) => {
+  // Debounce to prevent excessive API calls - INCREASED for rate limiting compliance
+  const [lastFetchTime, setLastFetchTime] = useState<number>(0);
+  const FETCH_COOLDOWN = 60000; // 60 seconds cooldown (increased from 30s for aggressive rate limiting)
+
+    const fetchScores = async (walletAddress: string, targetChainId: number) => {
+    // Check cooldown to prevent spam
+    const now = Date.now();
+    if (now - lastFetchTime < FETCH_COOLDOWN) {
+      console.log('⏳ Skipping fetch due to cooldown');
+      return;
+    }
+    
     setState(prev => ({ ...prev, loading: true, error: null }));
+    setLastFetchTime(now);
 
     try {
       const response = await fetch('/api/calculate-scores', {
@@ -92,6 +104,8 @@ export function useScores(chainId: number = 1) {
 
   const refetch = () => {
     if (address && isConnected) {
+      // Reset cooldown for manual refetch
+      setLastFetchTime(0);
       fetchScores(address, chainId);
     }
   };

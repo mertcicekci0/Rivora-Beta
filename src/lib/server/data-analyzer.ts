@@ -114,22 +114,22 @@ export function analyzeTokenTrustworthiness(balances: any): number {
 
 export function analyzeTokenDiversity(balances: any): number {
   if (!balances || Object.keys(balances).length === 0) {
-    return 0; // No diversity
+    return 30; // Default score for empty portfolio
   }
 
   const tokenCount = Object.keys(balances).length;
   
-  // Score based on number of different tokens (0-100 scale)
-  if (tokenCount === 1) return 20;      // Single token
-  if (tokenCount < 5) return 40;        // Low diversity
-  if (tokenCount < 10) return 60;       // Moderate diversity
-  if (tokenCount < 20) return 80;       // High diversity
+  // Score based on number of different tokens (30-100 scale)
+  if (tokenCount === 1) return 30;      // Single token
+  if (tokenCount < 5) return 50;        // Low diversity
+  if (tokenCount < 10) return 70;       // Moderate diversity
+  if (tokenCount < 20) return 85;       // High diversity
   return 100;                           // Very high diversity
 }
 
 export function analyzePortfolioConcentration(balances: any): number {
   if (!balances || Object.keys(balances).length === 0) {
-    return 0;
+    return 50; // Default score for empty portfolio
   }
 
   const balanceValues = Object.values(balances) as string[];
@@ -137,7 +137,7 @@ export function analyzePortfolioConcentration(balances: any): number {
     sum + parseFloat(balance || '0'), 0
   );
 
-  if (totalValue === 0) return 0;
+  if (totalValue === 0) return 50; // Default score
 
   // Calculate Herfindahl-Hirschman Index (concentration)
   const concentrationIndex = balanceValues.reduce((sum, balance) => {
@@ -147,7 +147,7 @@ export function analyzePortfolioConcentration(balances: any): number {
 
   // Convert to score (lower concentration = higher score)
   const concentrationScore = (1 - concentrationIndex) * 100;
-  return Math.max(0, concentrationScore);
+  return Math.max(30, Math.min(100, concentrationScore)); // Ensure valid range
 }
 
 export function analyzeTokenAgeAverage(balances: any): number {

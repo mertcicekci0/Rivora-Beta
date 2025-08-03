@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, Suspense, useRef } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useAccount } from 'wagmi';
 import HeroSection from '@/components/HeroSection';
 import FeaturesSection from '@/components/FeaturesSection';
@@ -9,11 +9,11 @@ import CosmicBackground from '@/components/Background/CosmicBackground';
 import Header from '@/components/Layout/Header';
 import InsightScore from '@/components/Dashboard/InsightScore';
 import Portfolio3D from '@/components/Dashboard/Portfolio3D';
-import AnalyticsChart from '@/components/Analytics/AnalyticsChart';
 import SwapInterface from '@/components/Swap/SwapInterface';
 import LendingProtocols from '@/components/Lending/LendingProtocols';
 import ScoresOverview from '@/components/Scores/ScoresOverview';
 import LimitOrderInterface from '@/components/LimitOrder/LimitOrderInterface';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export default function Home() {
   const { isConnected } = useAccount();
@@ -51,33 +51,49 @@ export default function Home() {
     switch (activeTab) {
       case 'dashboard':
         return (
-          <div className="space-y-6">
-            <InsightScore />
-            <Portfolio3D />
-          </div>
+          <ErrorBoundary>
+            <div className="space-y-6">
+              <InsightScore />
+              <Portfolio3D />
+            </div>
+          </ErrorBoundary>
         );
       case 'scores':
         return (
-          <div className="space-y-6">
-            <ScoresOverview />
-          </div>
+          <ErrorBoundary>
+            <div className="space-y-6">
+              <ScoresOverview />
+            </div>
+          </ErrorBoundary>
         );
       case 'swap':
         return (
-          <div className="max-w-2xl mx-auto">
-            <SwapInterface />
-          </div>
+          <ErrorBoundary>
+            <div className="max-w-2xl mx-auto">
+              <SwapInterface />
+            </div>
+          </ErrorBoundary>
         );
       case 'lending':
-        return <LendingProtocols />;
+        return (
+          <ErrorBoundary>
+            <LendingProtocols />
+          </ErrorBoundary>
+        );
       case 'limit-order':
-        return <LimitOrderInterface />;
+        return (
+          <ErrorBoundary>
+            <LimitOrderInterface />
+          </ErrorBoundary>
+        );
       default:
         return (
-          <div className="space-y-6">
-            <InsightScore />
-            <Portfolio3D />
-          </div>
+          <ErrorBoundary>
+            <div className="space-y-6">
+              <InsightScore />
+              <Portfolio3D />
+            </div>
+          </ErrorBoundary>
         );
     }
   };
