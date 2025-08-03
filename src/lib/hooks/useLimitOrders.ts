@@ -94,6 +94,7 @@ export function useLimitOrders(chainId: number = 1) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch limit orders';
       console.error('❌ Limit orders fetch failed:', errorMessage);
       
+      // Don't show fallback data, just show empty state with error
       setState(prev => ({
         ...prev,
         orders: [],

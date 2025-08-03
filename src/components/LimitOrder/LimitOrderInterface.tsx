@@ -40,16 +40,27 @@ const LimitOrderInterface: React.FC = () => {
     refreshBalances 
   } = useTokens(1);
 
-  // Token selection state
+  // Token selection state with better defaults
   const [tokens, setTokens] = useState(availableTokens);
   const [showTokenApproval, setShowTokenApproval] = useState(false);
   const [approvalToken, setApprovalToken] = useState<string>('');
   const [priceImpact, setPriceImpact] = useState<number>(0);
 
-  // Update tokens when available tokens change
+  // Update tokens when available tokens change and set better defaults
   useEffect(() => {
     if (availableTokens.length > 0) {
       setTokens(availableTokens);
+      
+      // Set default tokens if they exist
+      const hasUSDC = availableTokens.some(t => t.symbol === 'USDC');
+      const hasETH = availableTokens.some(t => t.symbol === 'ETH' || t.symbol === 'WETH');
+      
+      if (!hasUSDC && availableTokens.length > 0) {
+        setFromToken(availableTokens[0].symbol);
+      }
+      if (!hasETH && availableTokens.length > 1) {
+        setToToken(availableTokens[1].symbol);
+      }
     }
   }, [availableTokens]);
 
@@ -96,13 +107,12 @@ const LimitOrderInterface: React.FC = () => {
 
       // Check if token approval is needed (skip for ETH)
       if (fromTokenData.address !== '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
-        // TODO: Check allowance and show approval modal if needed
-        const needsApproval = await checkTokenApproval(fromTokenData.address, amount, fromTokenData.decimals);
-        if (needsApproval) {
-          setApprovalToken(fromToken);
-          setShowTokenApproval(true);
-          return;
-        }
+        // For demo purposes, assume approval is needed for non-ETH tokens
+        // In production, check allowance via token contract
+        console.log('🔐 Token approval required for:', fromToken);
+        setApprovalToken(fromToken);
+        setShowTokenApproval(true);
+        return;
       }
 
       // Calculate precise amounts with proper decimals
@@ -187,6 +197,40 @@ const LimitOrderInterface: React.FC = () => {
     return 'text-red-400';
   };
 
+  // Form validation functions
+  const isFormValid = () => {
+    if (!amount || !limitPrice) return false;
+    
+    const fromTokenData = tokens.find(t => t.symbol === fromToken);
+    if (!fromTokenData) return false;
+
+    const requiredAmount = parseFloat(amount);
+    const availableBalance = parseFloat(fromTokenData.balance);
+    
+    if (requiredAmount <= 0) return false;
+    if (requiredAmount > availableBalance) return false;
+    if (parseFloat(limitPrice) <= 0) return false;
+    
+    return true;
+  };
+
+  const getValidationMessage = () => {
+    if (!amount) return 'Enter Amount';
+    if (!limitPrice) return 'Enter Limit Price';
+    
+    const fromTokenData = tokens.find(t => t.symbol === fromToken);
+    if (!fromTokenData) return 'Token Not Found';
+
+    const requiredAmount = parseFloat(amount);
+    const availableBalance = parseFloat(fromTokenData.balance);
+    
+    if (requiredAmount <= 0) return 'Invalid Amount';
+    if (requiredAmount > availableBalance) return 'Insufficient Balance';
+    if (parseFloat(limitPrice) <= 0) return 'Invalid Price';
+    
+    return 'Enter Details';
+  };
+
   // Loading state for tokens
   if (tokensLoading && tokens.length === 0) {
     return (
@@ -195,6 +239,25 @@ const LimitOrderInterface: React.FC = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
           <h3 className="text-xl font-semibold text-white mb-2">Loading Tokens</h3>
           <p className="text-gray-400">Fetching real-time token data and prices...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show token error with fallback
+  if (tokensError && tokens.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="dashboard-card text-center py-12">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-white mb-2">Token Loading Error</h3>
+          <p className="text-gray-400 mb-4">Unable to load token data. Using fallback tokens.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="btn-primary"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
@@ -383,7 +446,7 @@ const LimitOrderInterface: React.FC = () => {
           {/* Create Order Button */}
           <button
             onClick={handleCreateOrder}
-            disabled={!amount || !limitPrice || creating}
+            disabled={!amount || !limitPrice || creating || !isFormValid()}
             className={`w-full py-4 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center space-x-2 ${
               orderType === 'buy'
                 ? 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600'
@@ -393,6 +456,7 @@ const LimitOrderInterface: React.FC = () => {
             <Target className="w-5 h-5" />
             <span>
               {creating ? 'Creating...' : 
+               !isFormValid() ? getValidationMessage() :
                amount && limitPrice ? `Create ${orderType === 'buy' ? 'Buy' : 'Sell'} Order` : 'Enter Details'}
             </span>
           </button>
@@ -494,6 +558,18 @@ const LimitOrderInterface: React.FC = () => {
               const progress = getOrderProgress(order);
               const timeLeft = getTimeUntilExpiry(order);
               
+              // Get token info for display
+              const makerToken = tokens.find(t => t.address.toLowerCase() === order.makerAsset.toLowerCase());
+              const takerToken = tokens.find(t => t.address.toLowerCase() === order.takerAsset.toLowerCase());
+              
+              // Format amounts for display
+              const makingAmountFormatted = makerToken 
+                ? (parseFloat(order.makingAmount) / Math.pow(10, makerToken.decimals)).toFixed(4)
+                : parseFloat(order.makingAmount).toFixed(4);
+              const takingAmountFormatted = takerToken
+                ? (parseFloat(order.takingAmount) / Math.pow(10, takerToken.decimals)).toFixed(4)
+                : parseFloat(order.takingAmount).toFixed(4);
+              
               return (
                 <div key={order.orderHash} className="p-4 bg-white/5 rounded-lg border border-white/10 hover:bg-white/8 transition-colors duration-200">
                   <div className="flex items-center justify-between mb-3">
@@ -502,7 +578,7 @@ const LimitOrderInterface: React.FC = () => {
                         {status.label}
                       </span>
                       <span className="text-white font-medium">
-                        {order.makingAmount} → {order.takingAmount}
+                        {makingAmountFormatted} {makerToken?.symbol || 'Token'} → {takingAmountFormatted} {takerToken?.symbol || 'Token'}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -525,12 +601,12 @@ const LimitOrderInterface: React.FC = () => {
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-400">Making Amount</p>
-                      <p className="text-white font-semibold">{order.makingAmount}</p>
+                      <p className="text-gray-400">Selling</p>
+                      <p className="text-white font-semibold">{makingAmountFormatted} {makerToken?.symbol || 'Token'}</p>
                     </div>
                     <div>
-                      <p className="text-gray-400">Taking Amount</p>
-                      <p className="text-white font-semibold">{order.takingAmount}</p>
+                      <p className="text-gray-400">For</p>
+                      <p className="text-white font-semibold">{takingAmountFormatted} {takerToken?.symbol || 'Token'}</p>
                     </div>
                     <div>
                       <p className="text-gray-400">Progress</p>
