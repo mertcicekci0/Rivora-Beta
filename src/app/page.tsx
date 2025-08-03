@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, Suspense, useRef } from 'react';
+import { useAccount } from 'wagmi';
 import HeroSection from '@/components/HeroSection';
 import FeaturesSection from '@/components/FeaturesSection';
 import FinalCTA from '@/components/FinalCTA';
@@ -15,15 +16,14 @@ import ScoresOverview from '@/components/Scores/ScoresOverview';
 import LimitOrderInterface from '@/components/LimitOrder/LimitOrderInterface';
 
 export default function Home() {
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
+  const { isConnected } = useAccount();
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const handleConnectWallet = () => {
-    setIsWalletConnected(true);
+    // This will be handled by RainbowKit modal
   };
 
   const handleDisconnectWallet = () => {
-    setIsWalletConnected(false);
     setActiveTab('dashboard');
   };
 
@@ -104,7 +104,7 @@ export default function Home() {
   );
 
   // Conditional Rendering: Landing Page vs Dashboard
-  if (!isWalletConnected) {
+  if (!isConnected) {
     return <LandingPage />;
   }
 

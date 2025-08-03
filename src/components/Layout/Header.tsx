@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Home, PieChart, ArrowLeftRight, Coins, TrendingUp, LogOut, Target, BarChart3 } from 'lucide-react';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 interface HeaderProps {
   activeTab: string;
@@ -51,14 +52,10 @@ const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, onDisconnect })
             })}
           </nav>
 
-          {/* Disconnect Button */}
-          <button
-            onClick={onDisconnect}
-            className="flex items-center space-x-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 hover:text-red-300 rounded-lg transition-all duration-200"
-          >
-            <LogOut size={18} />
-            <span className="hidden sm:inline">Disconnect</span>
-          </button>
+          {/* Account & Network Info */}
+          <div className="flex items-center space-x-3">
+            <ConnectButton chainStatus="icon" accountStatus="address" showBalance={false} />
+          </div>
         </div>
 
         {/* Mobile Navigation */}
