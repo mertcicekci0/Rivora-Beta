@@ -8,7 +8,6 @@ import FinalCTA from '@/components/FinalCTA';
 import CosmicBackground from '@/components/Background/CosmicBackground';
 import Header from '@/components/Layout/Header';
 import InsightScore from '@/components/Dashboard/InsightScore';
-import Portfolio3D from '@/components/Dashboard/Portfolio3D';
 import SwapInterface from '@/components/Swap/SwapInterface';
 import LendingProtocols from '@/components/Lending/LendingProtocols';
 import ScoresOverview from '@/components/Scores/ScoresOverview';
@@ -54,7 +53,6 @@ export default function Home() {
           <ErrorBoundary>
             <div className="space-y-6">
               <InsightScore />
-              <Portfolio3D />
             </div>
           </ErrorBoundary>
         );
@@ -91,7 +89,6 @@ export default function Home() {
           <ErrorBoundary>
             <div className="space-y-6">
               <InsightScore />
-              <Portfolio3D />
             </div>
           </ErrorBoundary>
         );
