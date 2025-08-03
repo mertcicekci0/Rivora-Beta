@@ -1,10 +1,18 @@
 'use client'
 
 import React from 'react';
-import { Brain, TrendingUp, Shield, Zap } from 'lucide-react';
+import { Brain, TrendingUp, Shield, Zap, RefreshCw, AlertCircle } from 'lucide-react';
+import { useScores, getRiskLevel, getHealthLevel, getUserTypeInfo } from '../../lib/hooks/useScores';
 
 const InsightScore: React.FC = () => {
-  const score = 87;
+  const { data, loading, error, refetch, isConnected } = useScores();
+  
+  // Use real data if available, fallback to demo data
+  const score = data ? Math.round((data.deFiRiskScore + data.deFiHealthScore) / 2) : 87;
+  const riskLevel = data ? getRiskLevel(data.deFiRiskScore) : { level: 'Low', color: 'text-blue-400', bgColor: 'bg-blue-500/20' };
+  const healthLevel = data ? getHealthLevel(data.deFiHealthScore) : { level: 'Good', color: 'text-green-400', bgColor: 'bg-green-500/20' };
+  const userTypeInfo = data ? getUserTypeInfo(data.userType) : { description: 'Active trader', emoji: '📈', color: 'text-green-400' };
+  
   const radius = 80;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (score / 100) * circumference;
@@ -12,26 +20,76 @@ const InsightScore: React.FC = () => {
   const insights = [
     {
       icon: TrendingUp,
-      title: 'Portfolio Growth',
-      value: '+24.5%',
-      color: 'text-green-400',
-      bgColor: 'bg-green-500/20',
+      title: 'Health Score',
+      value: data ? `${data.deFiHealthScore.toFixed(1)}` : '+24.5%',
+      color: healthLevel.color,
+      bgColor: healthLevel.bgColor,
     },
     {
       icon: Shield,
-      title: 'Risk Score',
-      value: 'Low',
-      color: 'text-blue-400',
-      bgColor: 'bg-blue-500/20',
+      title: 'Risk Level',
+      value: riskLevel.level,
+      color: riskLevel.color,
+      bgColor: riskLevel.bgColor,
     },
     {
       icon: Zap,
-      title: 'Yield Potential',
-      value: '12.8%',
-      color: 'text-yellow-400',
+      title: 'User Type',
+      value: data ? `${userTypeInfo.emoji} ${data.userType}` : '⚡ Optimizer',
+      color: userTypeInfo.color,
       bgColor: 'bg-yellow-500/20',
     },
   ];
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="dashboard-card glow-purple">
+        <div className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center space-y-4">
+            <RefreshCw className="w-8 h-8 text-purple-400 animate-spin" />
+            <p className="text-gray-400">Analyzing your DeFi profile...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="dashboard-card glow-purple border-red-500/20">
+        <div className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center space-y-4 text-center">
+            <AlertCircle className="w-8 h-8 text-red-400" />
+            <p className="text-red-400 font-medium">Failed to load insights</p>
+            <p className="text-gray-400 text-sm">{error}</p>
+            <button 
+              onClick={refetch}
+              className="px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show connect wallet state
+  if (!isConnected) {
+    return (
+      <div className="dashboard-card glow-purple">
+        <div className="flex items-center justify-center h-64">
+          <div className="flex flex-col items-center space-y-4 text-center">
+            <Brain className="w-8 h-8 text-purple-400" />
+            <p className="text-gray-400 font-medium">Connect your wallet</p>
+            <p className="text-gray-500 text-sm">to see your AI-powered DeFi insights</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-card glow-purple">
@@ -42,6 +100,24 @@ const InsightScore: React.FC = () => {
           </div>
           <h2 className="text-xl font-semibold text-white">AI Insight Score</h2>
         </div>
+        {data && (
+          <div className="flex items-center space-x-2">
+            <button 
+              onClick={refetch}
+              className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+              title="Refresh scores"
+            >
+              <RefreshCw className="w-4 h-4 text-gray-400 hover:text-white" />
+            </button>
+            <div className={`px-2 py-1 rounded text-xs ${
+              data.metadata?.dataQuality === 'high' ? 'bg-green-500/20 text-green-400' :
+              data.metadata?.dataQuality === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+              'bg-red-500/20 text-red-400'
+            }`}>
+              {data.metadata?.dataQuality} quality
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col xl:flex-row items-center justify-between space-y-8 xl:space-y-0 xl:space-x-12">
@@ -106,9 +182,17 @@ const InsightScore: React.FC = () => {
 
       <div className="mt-10 p-6 bg-gradient-to-r from-purple-500/10 to-cyan-500/10 rounded-xl border border-purple-500/20">
         <p className="text-base text-gray-300 leading-relaxed">
-          <span className="font-semibold text-purple-400">AI Recommendation:</span> Consider
-          increasing your DeFi exposure by 15% to optimize yield while maintaining your risk
-          profile.
+          <span className="font-semibold text-purple-400">AI Recommendation:</span> 
+          {data ? (
+            <>
+              {data.userType === 'Trader' && 'Consider diversifying your portfolio to reduce risk while maintaining trading opportunities.'}
+              {data.userType === 'Explorer' && 'Focus on established protocols to balance your experimental approach with security.'}
+              {data.userType === 'Optimizer' && 'Your efficiency-focused approach is excellent. Consider increasing position sizes for higher returns.'}
+              {data.userType === 'Passive' && 'Consider active rebalancing to optimize your portfolio performance.'}
+            </>
+          ) : (
+            'Consider increasing your DeFi exposure by 15% to optimize yield while maintaining your risk profile.'
+          )}
         </p>
       </div>
     </div>

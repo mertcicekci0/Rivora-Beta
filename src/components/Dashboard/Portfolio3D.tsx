@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   PieChart, 
   Pie, 
@@ -16,35 +16,102 @@ import {
   LineChart,
   Line,
 } from 'recharts';
-import { Wallet, TrendingUp, DollarSign, BarChart3, Calendar } from 'lucide-react';
+import { Wallet, TrendingUp, DollarSign, BarChart3, Calendar, RefreshCw, AlertCircle, AlertTriangle } from 'lucide-react';
+import { useScores } from '../../lib/hooks/useScores';
 
 const Portfolio3D: React.FC = () => {
   const [timeframe, setTimeframe] = useState('7D');
   const [chartType, setChartType] = useState('area');
+  const { data, loading, error, refetch, isConnected } = useScores();
 
-  const portfolioData = [
-    { name: 'ETH', value: 45, color: '#627EEA', amount: '$12,450' },
-    { name: 'BTC', value: 25, color: '#F7931A', amount: '$6,890' },
-    { name: 'USDC', value: 15, color: '#2775CA', amount: '$4,120' },
-    { name: 'AAVE', value: 10, color: '#B6509E', amount: '$2,750' },
-    { name: 'UNI', value: 5, color: '#FF007A', amount: '$1,380' },
-  ];
+  // Generate portfolio data from API response or use fallback
+  const portfolioData = useMemo(() => {
+    if (!data?.portfolioData?.tokens || data.portfolioData.tokens.length === 0) {
+      // Fallback demo data
+      return [
+        { name: 'ETH', value: 45, color: '#627EEA', amount: '$12,450', balance: '5.2' },
+        { name: 'BTC', value: 25, color: '#F7931A', amount: '$6,890', balance: '0.15' },
+        { name: 'USDC', value: 15, color: '#2775CA', amount: '$4,120', balance: '4120' },
+        { name: 'AAVE', value: 10, color: '#B6509E', amount: '$2,750', balance: '32.5' },
+        { name: 'UNI', value: 5, color: '#FF007A', amount: '$1,380', balance: '180' },
+      ];
+    }
 
-  const performanceData = [
-    { date: '2024-01-01', value: 24500, volume: 1200 },
-    { date: '2024-01-02', value: 25200, volume: 1350 },
-    { date: '2024-01-03', value: 24800, volume: 1100 },
-    { date: '2024-01-04', value: 26100, volume: 1450 },
-    { date: '2024-01-05', value: 27300, volume: 1600 },
-    { date: '2024-01-06', value: 26800, volume: 1380 },
-    { date: '2024-01-07', value: 27590, volume: 1520 },
-  ];
+    // Transform real API data
+    const tokens = data.portfolioData.tokens;
+    const colors = ['#627EEA', '#F7931A', '#2775CA', '#B6509E', '#FF007A'];
+    
+    return tokens.slice(0, 5).map((token, index) => ({
+      name: token.symbol,
+      value: Math.round(token.percentage * 100) / 100,
+      color: colors[index] || '#8B5CF6',
+      amount: `$${token.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+      balance: parseFloat(token.amount).toLocaleString(undefined, { maximumFractionDigits: 2 })
+    }));
+  }, [data]);
+
+  // Calculate total portfolio value
+  const totalValue = useMemo(() => {
+    if (!data?.portfolioData?.totalValue) {
+      return '$27,590'; // Fallback
+    }
+    
+    return `$${data.portfolioData.totalValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  }, [data]);
+
+  // Generate performance data based on analysis or fallback
+  const performanceData = useMemo(() => {
+    if (!data?.analysis) {
+      // Fallback demo data
+      return [
+        { date: '2024-01-01', value: 24500, volume: 1200 },
+        { date: '2024-01-02', value: 25200, volume: 1350 },
+        { date: '2024-01-03', value: 24800, volume: 1100 },
+        { date: '2024-01-04', value: 26100, volume: 1450 },
+        { date: '2024-01-05', value: 27300, volume: 1600 },
+        { date: '2024-01-06', value: 26800, volume: 1380 },
+        { date: '2024-01-07', value: 27590, volume: 1520 },
+      ];
+    }
+
+    // Generate synthetic performance data based on real metrics
+    const baseValue = data.portfolioData?.totalValue || 27590;
+    const volatility = data.analysis.portfolioVolatility || 0.05;
+    const days = 7;
+    
+    return Array.from({ length: days }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (days - 1 - i));
+      
+      // Generate realistic price movement based on volatility
+      const randomChange = (Math.random() - 0.5) * volatility * 2;
+      const dayValue = baseValue * (1 + randomChange * i * 0.1);
+      
+      return {
+        date: date.toISOString().split('T')[0],
+        value: Math.round(dayValue),
+        volume: Math.round(1000 + Math.random() * 800)
+      };
+    });
+  }, [data]);
 
   const timeframes = ['1D', '7D', '1M', '3M', '1Y'];
 
-  const totalValue = '$27,590';
-  const dailyChange = '+$1,245';
-  const dailyChangePercent = '+4.7%';
+  const dailyChange = useMemo(() => {
+    if (performanceData.length < 2) return '+$0';
+    const latest = performanceData[performanceData.length - 1].value;
+    const previous = performanceData[performanceData.length - 2].value;
+    const change = latest - previous;
+    return `${change >= 0 ? '+' : ''}$${Math.abs(change).toLocaleString()}`;
+  }, [performanceData]);
+
+  const dailyChangePercent = useMemo(() => {
+    if (performanceData.length < 2) return '+0.0%';
+    const latest = performanceData[performanceData.length - 1].value;
+    const previous = performanceData[performanceData.length - 2].value;
+    const change = ((latest - previous) / previous) * 100;
+    return `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`;
+  }, [performanceData]);
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
@@ -75,6 +142,67 @@ const Portfolio3D: React.FC = () => {
     }
     return null;
   };
+
+  // Show wallet connection prompt
+  if (!isConnected) {
+    return (
+      <div className="space-y-6">
+        <div className="dashboard-card text-center py-12">
+          <AlertCircle className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-white mb-2">Connect Your Wallet</h3>
+          <p className="text-gray-400">Connect your wallet to view your portfolio analytics and performance metrics.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="dashboard-card glow-cyan">
+          <div className="animate-pulse">
+            <div className="flex items-center space-x-3 mb-6">
+              <div className="w-10 h-10 bg-gray-700 rounded-lg"></div>
+              <div className="h-6 bg-gray-700 rounded w-48"></div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div className="h-8 bg-gray-700 rounded"></div>
+                <div className="h-12 bg-gray-700 rounded"></div>
+                <div className="space-y-3">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <div key={i} className="h-12 bg-gray-700 rounded"></div>
+                  ))}
+                </div>
+              </div>
+              <div className="h-80 bg-gray-700 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="dashboard-card text-center py-12">
+          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-white mb-2">Error Loading Portfolio</h3>
+          <p className="text-gray-400 mb-4">{error}</p>
+          <button
+            onClick={refetch}
+            className="btn-primary inline-flex items-center space-x-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Retry</span>
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="space-y-6">
       {/* Portfolio Overview */}
@@ -85,6 +213,20 @@ const Portfolio3D: React.FC = () => {
               <Wallet className="w-6 h-6 text-cyan-400" />
             </div>
             <h2 className="text-xl font-semibold text-white">Portfolio Overview</h2>
+          </div>
+          <div className="flex items-center space-x-2">
+            {data && (
+              <span className="text-xs text-gray-400">
+                Updated: {data.metadata?.timestamp ? new Date(data.metadata.timestamp).toLocaleTimeString() : 'Now'}
+              </span>
+            )}
+            <button
+              onClick={refetch}
+              className="p-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+              title="Refresh portfolio data"
+            >
+              <RefreshCw className="w-4 h-4 text-gray-400" />
+            </button>
           </div>
         </div>
 
@@ -119,6 +261,11 @@ const Portfolio3D: React.FC = () => {
                   </div>
                 </div>
               ))}
+              {portfolioData.length === 0 && (
+                <div className="text-center py-6">
+                  <p className="text-gray-400">No assets found</p>
+                </div>
+              )}
             </div>
           </div>
 
