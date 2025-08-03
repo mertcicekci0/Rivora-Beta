@@ -360,14 +360,32 @@ export async function getPortfolioData(walletAddress: string, chainId: number) {
   }
 }
 
-// Portfolio API v4 - Current Value endpoint
-async function getPortfolioCurrentValue(walletAddress: string, chainId: number) {
+// ========================================
+// PORTFOLIO API V4 - Current Value endpoint
+// ========================================
+export async function getPortfolioCurrentValue(walletAddress: string, chainId: number) {
   const url = `${ONEINCH_BASE_URL}/portfolio/portfolio/v4/overview/erc20/current_value?addresses=${walletAddress}&chain_id=${chainId}`;
+  console.log('🔗 Fetching portfolio current value from:', url);
+  return await makeApiRequest(url);
+}
+
+// Portfolio API v4 - Profit and Loss endpoint  
+export async function getPortfolioProfitAndLoss(walletAddress: string, chainId: number, fromTimestamp?: string, toTimestamp?: string) {
+  // Default to last 30 days if no timestamps provided
+  const defaultTo = Math.floor(Date.now() / 1000);
+  const defaultFrom = defaultTo - (30 * 24 * 60 * 60); // 30 days ago
+  
+  const from = fromTimestamp || defaultFrom.toString();
+  const to = toTimestamp || defaultTo.toString();
+  
+  const url = `${ONEINCH_BASE_URL}/portfolio/portfolio/v4/overview/erc20/profit_and_loss?addresses=${walletAddress}&chain_id=${chainId}&from_timestamp=${from}&to_timestamp=${to}`;
+  console.log('🔗 Fetching portfolio P&L from:', url);
   return await makeApiRequest(url);
 }
 
 // Portfolio API v4 - Token Details endpoint  
-async function getPortfolioTokenDetails(walletAddress: string, chainId: number) {
+export async function getPortfolioTokenDetails(walletAddress: string, chainId: number) {
   const url = `${ONEINCH_BASE_URL}/portfolio/portfolio/v4/overview/erc20/details?addresses=${walletAddress}&chain_id=${chainId}`;
+  console.log('🔗 Fetching portfolio token details from:', url);
   return await makeApiRequest(url);
 }
