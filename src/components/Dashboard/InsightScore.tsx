@@ -7,11 +7,11 @@ import { useScores, getRiskLevel, getHealthLevel, getUserTypeInfo } from '../../
 const InsightScore: React.FC = () => {
   const { data, loading, error, refetch, isConnected } = useScores();
   
-  // Use real data if available, fallback to demo data
-  const score = data ? Math.round((data.deFiRiskScore + data.deFiHealthScore) / 2) : 87;
-  const riskLevel = data ? getRiskLevel(data.deFiRiskScore) : { level: 'Low', color: 'text-blue-400', bgColor: 'bg-blue-500/20' };
-  const healthLevel = data ? getHealthLevel(data.deFiHealthScore) : { level: 'Good', color: 'text-green-400', bgColor: 'bg-green-500/20' };
-  const userTypeInfo = data ? getUserTypeInfo(data.userType) : { description: 'Active trader', emoji: '📈', color: 'text-green-400' };
+  // Use real data only - NO FALLBACK DATA
+  const score = data ? Math.round((data.deFiRiskScore + data.deFiHealthScore) / 2) : 0;
+  const riskLevel = data ? getRiskLevel(data.deFiRiskScore) : null;
+  const healthLevel = data ? getHealthLevel(data.deFiHealthScore) : null;
+  const userTypeInfo = data ? getUserTypeInfo(data.userType) : null;
   
   const radius = 80;
   const circumference = 2 * Math.PI * radius;
@@ -21,22 +21,22 @@ const InsightScore: React.FC = () => {
     {
       icon: TrendingUp,
       title: 'Health Score',
-      value: data ? `${data.deFiHealthScore.toFixed(1)}` : '+24.5%',
-      color: healthLevel.color,
-      bgColor: healthLevel.bgColor,
+      value: data ? `${data.deFiHealthScore.toFixed(1)}` : '0.0',
+      color: healthLevel?.color || 'text-gray-400',
+      bgColor: healthLevel?.bgColor || 'bg-gray-500/20',
     },
     {
       icon: Shield,
       title: 'Risk Level',
-      value: riskLevel.level,
-      color: riskLevel.color,
-      bgColor: riskLevel.bgColor,
+      value: riskLevel?.level || 'N/A',
+      color: riskLevel?.color || 'text-gray-400',
+      bgColor: riskLevel?.bgColor || 'bg-gray-500/20',
     },
     {
       icon: Zap,
       title: 'User Type',
-      value: data ? `${userTypeInfo.emoji} ${data.userType}` : '⚡ Optimizer',
-      color: userTypeInfo.color,
+      value: data ? `${userTypeInfo?.emoji || '⚡'} ${data.userType}` : 'N/A',
+      color: userTypeInfo?.color || 'text-gray-400',
       bgColor: 'bg-yellow-500/20',
     },
   ];
@@ -189,9 +189,10 @@ const InsightScore: React.FC = () => {
               {data.userType === 'Explorer' && 'Focus on established protocols to balance your experimental approach with security.'}
               {data.userType === 'Optimizer' && 'Your efficiency-focused approach is excellent. Consider increasing position sizes for higher returns.'}
               {data.userType === 'Passive' && 'Consider active rebalancing to optimize your portfolio performance.'}
+              {!['Trader', 'Explorer', 'Optimizer', 'Passive'].includes(data.userType) && 'Connect your wallet to receive personalized DeFi recommendations.'}
             </>
           ) : (
-            'Consider increasing your DeFi exposure by 15% to optimize yield while maintaining your risk profile.'
+            'Connect your wallet to receive personalized AI-powered DeFi recommendations based on your portfolio analysis.'
           )}
         </p>
       </div>
