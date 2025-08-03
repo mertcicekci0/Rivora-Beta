@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { TrendingUp, Clock, Target, Settings, Plus, Minus, Shield, Zap, Award, RefreshCw, AlertCircle, X } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { useScores } from '../../lib/hooks/useScores';
-import { useLimitOrders, getOrderStatus, getOrderProgress, getTimeUntilExpiry } from '../../lib/hooks/useLimitOrders';
+import { useLimitOrders, getOrderStatus, getOrderProgress, getTimeUntilExpiry, LimitOrder } from '../../lib/hooks/useLimitOrders';
 
 const LimitOrderInterface: React.FC = () => {
   const [orderType, setOrderType] = useState<'buy' | 'sell'>('buy');
@@ -360,7 +360,7 @@ const LimitOrderInterface: React.FC = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            {orders.map((order) => {
+            {orders.map((order: LimitOrder) => {
               const status = getOrderStatus(order);
               const progress = getOrderProgress(order);
               const timeLeft = getTimeUntilExpiry(order);

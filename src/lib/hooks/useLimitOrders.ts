@@ -1,40 +1,50 @@
-// Custom hook for limit order operations
+// Custom hook for limit order operations using 1inch SDK
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAccount } from 'wagmi';
 
 export interface LimitOrder {
   orderHash: string;
-  signature: string;
+  signature?: string;
   makerAsset: string;
   takerAsset: string;
   makingAmount: string;
   takingAmount: string;
   maker: string;
   receiver: string;
-  allowedSender: string;
+  allowedSender?: string;
   salt: string;
-  auctionStartTime: number;
-  auctionEndTime: number;
-  makingAmountIncrease: string;
-  takingAmountIncrease: string;
+  auctionStartTime?: number;
+  auctionEndTime?: number;
+  makingAmountIncrease?: string;
+  takingAmountIncrease?: string;
   status: number;
-  filledTakingAmount: string;
-  remainingMakingAmount: string;
+  statusName: string;
+  filledTakingAmount?: string;
+  remainingMakingAmount?: string;
   createdAt: string;
+  expiresAt?: string | null;
 }
 
 export interface CreateOrderData {
   makerAsset: string;
   takerAsset: string;
-  makingAmount: string;
-  takingAmount: string;
+  makingAmount: string; // String format like "1.5"
+  takingAmount: string; // String format like "3000.0"
   maker: string;
   chainId: number;
-  salt?: string;
-  receiver?: string;
-  allowedSender?: string;
+  expirationInSeconds?: number;
+  allowPartialFills?: boolean;
+  allowMultipleFills?: boolean;
+  makerDecimals?: number;
+  takerDecimals?: number;
+}
+
+export interface OrderSigningData {
+  orderHash: string;
+  typedData: any;
+  domain: any;
 }
 
 export interface LimitOrderState {
@@ -43,6 +53,7 @@ export interface LimitOrderState {
   error: string | null;
   creating: boolean;
   cancelling: string | null; // orderHash being cancelled
+  submitting: string | null; // orderHash being submitted
 }
 
 export function useLimitOrders(chainId: number = 1) {
@@ -53,10 +64,11 @@ export function useLimitOrders(chainId: number = 1) {
     error: null,
     creating: false,
     cancelling: null,
+    submitting: null,
   });
 
   // Fetch limit orders
-  const fetchOrders = async (type: 'active' | 'all' | 'historical' = 'active') => {
+  const fetchOrders = useCallback(async (type: 'active' | 'all' | 'historical' = 'active') => {
     if (!address || !isConnected) return;
 
     setState(prev => ({ ...prev, loading: true, error: null }));
@@ -72,7 +84,7 @@ export function useLimitOrders(chainId: number = 1) {
       const data = await response.json();
       setState(prev => ({
         ...prev,
-        orders: data.orders || [],
+        orders: data.data?.orders || [],
         loading: false,
         error: null,
       }));
@@ -89,10 +101,10 @@ export function useLimitOrders(chainId: number = 1) {
         error: errorMessage,
       }));
     }
-  };
+  }, [address, isConnected, chainId]);
 
   // Create new limit order
-  const createOrder = async (orderData: CreateOrderData) => {
+  const createOrder = async (orderData: CreateOrderData): Promise<OrderSigningData> => {
     setState(prev => ({ ...prev, creating: true, error: null }));
 
     try {
@@ -116,11 +128,8 @@ export function useLimitOrders(chainId: number = 1) {
         error: null,
       }));
 
-      // Refresh orders list
-      await fetchOrders();
-
       console.log('✅ Limit order created:', result);
-      return result;
+      return result.data;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to create limit order';
       console.error('❌ Limit order creation failed:', errorMessage);
@@ -139,8 +148,12 @@ export function useLimitOrders(chainId: number = 1) {
     setState(prev => ({ ...prev, cancelling: orderHash, error: null }));
 
     try {
-      const response = await fetch(`/api/limit-orders?orderHash=${orderHash}&chainId=${chainId}`, {
+      const response = await fetch('/api/limit-orders', {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderHash, chainId }),
       });
 
       if (!response.ok) {
@@ -184,9 +197,10 @@ export function useLimitOrders(chainId: number = 1) {
         error: null,
         creating: false,
         cancelling: null,
+        submitting: null,
       });
     }
-  }, [address, isConnected, chainId]);
+  }, [address, isConnected, chainId, fetchOrders]);
 
   return {
     ...state,
@@ -228,12 +242,13 @@ export function getOrderProgress(order: LimitOrder): number {
   return total > 0 ? (filled / total) * 100 : 0;
 }
 
-// Calculate time until expiry
+// Calculate time until expiry - Fixed the undefined check
 export function getTimeUntilExpiry(order: LimitOrder): string {
   const now = Math.floor(Date.now() / 1000);
   const expiry = order.auctionEndTime;
   
-  if (expiry <= now) return 'Expired';
+  // Check if expiry is defined
+  if (!expiry || expiry <= now) return 'Expired';
   
   const diff = expiry - now;
   const days = Math.floor(diff / 86400);
