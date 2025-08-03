@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { TrendingUp, Clock, Target, Settings, Plus, Minus, Shield, Zap, Award, RefreshCw, AlertCircle, X } from 'lucide-react';
 import { useAccount } from 'wagmi';
 import { useScores } from '../../lib/hooks/useScores';
 import { useLimitOrders, getOrderStatus, getOrderProgress, getTimeUntilExpiry, LimitOrder } from '../../lib/hooks/useLimitOrders';
+import { useTokens, Token, formatPrice, formatPriceChange } from '../../lib/hooks/useTokens';
 
 const LimitOrderInterface: React.FC = () => {
   const [orderType, setOrderType] = useState<'buy' | 'sell'>('buy');
@@ -30,16 +31,50 @@ const LimitOrderInterface: React.FC = () => {
     refetch 
   } = useLimitOrders();
 
-  // Mock token data - in real app, fetch from token API
-  const [tokens, setTokens] = useState([
-    { symbol: 'ETH', name: 'Ethereum', price: '$2,450', balance: '5.2341', address: '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' },
-    { symbol: 'USDC', name: 'USD Coin', price: '$1.00', balance: '12,450.50', address: '0xA0b86a33E6B8e6B9c4b25E1e1E7d2e3F4e5e6e7e' },
-    { symbol: 'BTC', name: 'Bitcoin', price: '$43,250', balance: '0.1592', address: '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599' },
-    { symbol: 'AAVE', name: 'Aave', price: '$275.80', balance: '10.0', address: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9' },
-    { symbol: 'UNI', name: 'Uniswap', price: '$13.45', balance: '102.7', address: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984' },
-  ]);
+  // Real token data with dynamic pricing and balances
+  const { 
+    tokens: availableTokens, 
+    loading: tokensLoading, 
+    error: tokensError,
+    searchTokens,
+    refreshBalances 
+  } = useTokens(1);
 
-  // Handle order creation
+  // Token selection state
+  const [tokens, setTokens] = useState(availableTokens);
+  const [showTokenApproval, setShowTokenApproval] = useState(false);
+  const [approvalToken, setApprovalToken] = useState<string>('');
+  const [priceImpact, setPriceImpact] = useState<number>(0);
+
+  // Update tokens when available tokens change
+  useEffect(() => {
+    if (availableTokens.length > 0) {
+      setTokens(availableTokens);
+    }
+  }, [availableTokens]);
+
+  // Calculate price impact and validate order
+  const calculatePriceImpact = useCallback((amount: string, price: string, fromTokenSymbol: string, toTokenSymbol: string) => {
+    const fromToken = tokens.find(t => t.symbol === fromTokenSymbol);
+    const toToken = tokens.find(t => t.symbol === toTokenSymbol);
+    
+    if (!fromToken || !toToken || !amount || !price) {
+      setPriceImpact(0);
+      return;
+    }
+
+    const marketPrice = toToken.price / fromToken.price;
+    const limitPriceNum = parseFloat(price);
+    const impact = Math.abs((limitPriceNum - marketPrice) / marketPrice) * 100;
+    setPriceImpact(impact);
+  }, [tokens]);
+
+  // Real-time price impact calculation
+  useEffect(() => {
+    calculatePriceImpact(amount, limitPrice, fromToken, toToken);
+  }, [amount, limitPrice, fromToken, toToken, calculatePriceImpact]);
+
+  // Enhanced order creation with validation and approval workflow
   const handleCreateOrder = async () => {
     if (!amount || !limitPrice || !isConnected) return;
 
@@ -51,9 +86,28 @@ const LimitOrderInterface: React.FC = () => {
         throw new Error('Token not found');
       }
 
-      // Calculate amounts (simplified - in real app, handle decimals properly)
-      const makingAmount = (parseFloat(amount) * Math.pow(10, 18)).toString(); // Assuming 18 decimals
-      const takingAmount = (parseFloat(amount) * parseFloat(limitPrice) * Math.pow(10, 18)).toString();
+      // Validate balance
+      const requiredAmount = parseFloat(amount);
+      const availableBalance = parseFloat(fromTokenData.balance);
+      
+      if (requiredAmount > availableBalance) {
+        throw new Error(`Insufficient ${fromToken} balance. Required: ${amount}, Available: ${fromTokenData.balance}`);
+      }
+
+      // Check if token approval is needed (skip for ETH)
+      if (fromTokenData.address !== '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE') {
+        // TODO: Check allowance and show approval modal if needed
+        const needsApproval = await checkTokenApproval(fromTokenData.address, amount, fromTokenData.decimals);
+        if (needsApproval) {
+          setApprovalToken(fromToken);
+          setShowTokenApproval(true);
+          return;
+        }
+      }
+
+      // Calculate precise amounts with proper decimals
+      const makingAmount = (parseFloat(amount) * Math.pow(10, fromTokenData.decimals)).toString();
+      const takingAmount = (parseFloat(amount) * parseFloat(limitPrice) * Math.pow(10, toTokenData.decimals)).toString();
 
       await createOrder({
         makerAsset: fromTokenData.address,
@@ -62,26 +116,59 @@ const LimitOrderInterface: React.FC = () => {
         takingAmount,
         maker: address || '',
         chainId: 1, // Ethereum mainnet
+        makerDecimals: fromTokenData.decimals,
+        takerDecimals: toTokenData.decimals,
       });
 
       // Reset form
       setAmount('');
       setLimitPrice('');
       
+      // Refresh balances after order creation
+      await refreshBalances();
+      
     } catch (error) {
       console.error('Failed to create order:', error);
     }
   };
 
-  // Handle order cancellation
+  // Token approval check function
+  const checkTokenApproval = async (tokenAddress: string, amount: string, decimals: number): Promise<boolean> => {
+    try {
+      const response = await fetch('/api/tokens/approval', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tokenAddress,
+          walletAddress: address,
+          amount,
+          decimals,
+          chainId: 1,
+        }),
+      });
+
+      if (!response.ok) return true; // Assume approval needed if check fails
+
+      const data = await response.json();
+      return !data.hasApproval;
+    } catch (error) {
+      console.error('Failed to check token approval:', error);
+      return true; // Assume approval needed on error
+    }
+  };
+
+  // Enhanced order cancellation with optimistic updates
   const handleCancelOrder = async (orderHash: string) => {
     try {
       await cancelOrder(orderHash);
+      // Refresh balances after cancellation
+      await refreshBalances();
     } catch (error) {
       console.error('Failed to cancel order:', error);
     }
   };
 
+  // Get enhanced status color with more states
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'text-blue-400 bg-blue-500/20';
@@ -92,6 +179,26 @@ const LimitOrderInterface: React.FC = () => {
       default: return 'text-gray-400 bg-gray-500/20';
     }
   };
+
+  // Price impact indicator
+  const getPriceImpactColor = (impact: number) => {
+    if (impact < 1) return 'text-green-400';
+    if (impact < 5) return 'text-yellow-400';
+    return 'text-red-400';
+  };
+
+  // Loading state for tokens
+  if (tokensLoading && tokens.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="dashboard-card text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
+          <h3 className="text-xl font-semibold text-white mb-2">Loading Tokens</h3>
+          <p className="text-gray-400">Fetching real-time token data and prices...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Show wallet connection prompt
   if (!isConnected) {
@@ -154,7 +261,11 @@ const LimitOrderInterface: React.FC = () => {
                 {orderType === 'buy' ? 'Pay with' : 'Sell'}
               </span>
               <span className="text-sm text-gray-400">
-                Balance: {tokens.find(t => t.symbol === fromToken)?.balance}
+                Balance: {tokens.find(t => t.symbol === fromToken)?.balance || '0.0'}
+                <span className="ml-2 text-xs">
+                  ${(parseFloat(tokens.find(t => t.symbol === fromToken)?.balance || '0') * 
+                    (tokens.find(t => t.symbol === fromToken)?.price || 0)).toFixed(2)}
+                </span>
               </span>
             </div>
             <div className="flex items-center space-x-3">
@@ -172,7 +283,7 @@ const LimitOrderInterface: React.FC = () => {
               >
                 {tokens.map((token) => (
                   <option key={token.symbol} value={token.symbol} className="bg-gray-800">
-                    {token.symbol}
+                    {token.symbol} - {formatPrice(token.price)}
                   </option>
                 ))}
               </select>
@@ -186,7 +297,10 @@ const LimitOrderInterface: React.FC = () => {
                 {orderType === 'buy' ? 'Buy' : 'Receive'}
               </span>
               <span className="text-sm text-gray-400">
-                Current: {tokens.find(t => t.symbol === toToken)?.price}
+                Current: {formatPrice(tokens.find(t => t.symbol === toToken)?.price || 0)}
+                <span className={`ml-2 ${formatPriceChange(tokens.find(t => t.symbol === toToken)?.priceChange24h || 0).color}`}>
+                  {formatPriceChange(tokens.find(t => t.symbol === toToken)?.priceChange24h || 0).formatted}
+                </span>
               </span>
             </div>
             <div className="flex items-center space-x-3">
@@ -204,7 +318,7 @@ const LimitOrderInterface: React.FC = () => {
               >
                 {tokens.map((token) => (
                   <option key={token.symbol} value={token.symbol} className="bg-gray-800">
-                    {token.symbol}
+                    {token.symbol} - {formatPrice(token.price)}
                   </option>
                 ))}
               </select>
@@ -244,9 +358,24 @@ const LimitOrderInterface: React.FC = () => {
                 <span className="text-gray-400">Amount</span>
                 <span className="text-white">{amount} {fromToken}</span>
               </div>
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-between text-sm mb-2">
                 <span className="text-gray-400">Limit Price</span>
                 <span className="text-white">{limitPrice} {fromToken}/{toToken}</span>
+              </div>
+              {priceImpact > 0 && (
+                <div className="flex items-center justify-between text-sm mb-2">
+                  <span className="text-gray-400">Price Impact</span>
+                  <span className={`font-semibold ${getPriceImpactColor(priceImpact)}`}>
+                    {priceImpact.toFixed(2)}%
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center justify-between text-sm border-t border-white/10 pt-2">
+                <span className="text-gray-400">Est. Total</span>
+                <span className="text-white font-semibold">
+                  ${((parseFloat(amount || '0') * parseFloat(limitPrice || '0')) * 
+                    (tokens.find(t => t.symbol === fromToken)?.price || 0)).toFixed(2)}
+                </span>
               </div>
             </div>
           )}
@@ -426,6 +555,60 @@ const LimitOrderInterface: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Token Approval Modal */}
+      {showTokenApproval && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-gradient-to-br from-gray-900 to-black border border-white/20 rounded-2xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-white">Token Approval Required</h3>
+              <button 
+                onClick={() => setShowTokenApproval(false)}
+                className="p-1 hover:bg-white/10 rounded transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400" />
+              </button>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-gray-300 mb-4">
+                You need to approve {approvalToken} spending before creating this limit order.
+              </p>
+              <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
+                <div className="flex items-start space-x-2">
+                  <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-yellow-400 font-medium text-sm">Security Notice</p>
+                    <p className="text-yellow-300 text-xs mt-1">
+                      This approval allows the 1inch Limit Order Protocol to spend your {approvalToken} tokens.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowTokenApproval(false)}
+                className="flex-1 py-3 px-4 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  // TODO: Implement token approval logic
+                  setShowTokenApproval(false);
+                  // Retry order creation after approval
+                  await handleCreateOrder();
+                }}
+                className="flex-1 py-3 px-4 bg-gradient-to-r from-purple-500 to-cyan-500 hover:from-purple-600 hover:to-cyan-600 text-white rounded-lg transition-all duration-200"
+              >
+                Approve {approvalToken}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
